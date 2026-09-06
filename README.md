@@ -1,4 +1,18 @@
+##  Neden Bu Proje?
+
+Piyasadaki birçok RSS okuyucu uygulamasının kısıtlayıcı veya yetersiz hissettirmesi üzerine bu projeyi geliştirdim:
+
+- **Ücretsiz ve Sınırsız:** Temel RSS özelliklerini sunmak için bile aylık abonelik talep eden servisler yerine %100 ücretsiz bir alternatif.
+- **Modern ve Temiz Arayüz:** Karmaşık, göz yoran ve eski tarz RSS arayüzleri yerine minimalist, modern ve okuma odaklı bir UX/UI tasarımı.
+- **%100 Veri Gizliliği:** Tüm verileriniz, okuma geçmişiniz ve ayarlarınız yalnızca kendi tarayıcınızın `localStorage` alanında tutulur. Sunucu yok, takipçi (tracker) yok, hesap oluşturma şartı yok.
+- **Zaman Tasarrufu:** Sayfalarca içerik arasında kaybolmak yerine; akıllı puanlama algoritması, otomatik etiketleme, zen modu ve özelleştirilebilir tipografi sayesinde en önemli haberlere hızla ulaşıp zamandan tasarruf sağlarsınız.
+
+
 # RSS Okuyucu
+
+
+
+
 
 Tarayıcı tabanlı, sıfır bağımlılıklı RSS okuyucu. Kurulum gerektirmez — `index.html` dosyasını açmak yeterli.
 
