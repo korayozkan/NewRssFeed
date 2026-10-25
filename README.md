@@ -36,8 +36,8 @@
 ## Get Started
 
 ```bash
-git clone https://github.com/korayozkan/RSS-Okuyucu.git
-cd RSS-Okuyucu
+git clone https://github.com/korayozkan/NewRssFeed.git
+cd NewRssFeed
 python -m http.server 8080
 ```
 
