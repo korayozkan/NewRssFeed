@@ -18,9 +18,7 @@
 
 ---
 
-## What is NewRssFeed?
 
-NewRssFeed is a lightweight RSS reader that brings your favorite websites and news feeds together in one place, making it easier to follow the content you care about.
 
 
 <p align="center">
