@@ -2,7 +2,10 @@
 
 # dependencies
 node_modules/
-
+.vscode/
+AGENTS.md
+.kiro/
+anti-slop/
 # Expo
 .expo/
 dist/
