@@ -71,14 +71,14 @@
 
   /* Layout button active */
   .layout-btn.active {
-    color: #dddddd;
-    background-color: #111111;
+    color: #ddd;
+    background-color: #111;
   }
 
   /* Icon button active (panels open) */
   .icon-btn.active {
-    color: #dddddd;
-    background-color: #111111;
+    color: #ddd;
+    background-color: #111;
   }
 
   /* Feed item base (JS-rendered) */
@@ -89,18 +89,18 @@
     padding: 7px 8px;
     border-radius: 6px;
     cursor: pointer;
-    color: #777777;
+    color: #777;
     font-size: 13px;
     position: relative;
     user-select: none;
   }
   .feed-item:hover {
-    background-color: #111111;
-    color: #dddddd;
+    background-color: #111;
+    color: #ddd;
   }
   .feed-item.active {
     background-color: #161616;
-    color: #dddddd;
+    color: #ddd;
   }
 
   /* Feed remove button */
@@ -108,7 +108,7 @@
     opacity: 0;
     margin-left: auto;
     padding: 2px;
-    color: #555555;
+    color: #555;
     background: transparent;
     border: 0;
     cursor: pointer;
@@ -170,7 +170,7 @@
   /* Article / post star buttons */
   .article-star-btn,
   .post-star-btn {
-    color: #444444;
+    color: #444;
     background: transparent;
     border: 0;
     cursor: pointer;
@@ -198,13 +198,13 @@
   /* Settings segment button active */
   .seg-btn.active {
     background-color: #5b9cf6;
-    color: #ffffff;
+    color: #fff;
   }
 
   /* Accent swatch active */
   .accent-swatch.active,
   .hl-btn.active {
-    border-color: #ffffff;
+    border-color: #fff;
     transform: scale(1.1);
   }
 
@@ -231,7 +231,7 @@
     list-style: none;
   }
   .sugg-card:hover {
-    background-color: #111111;
+    background-color: #111;
   }
 
   /* Reel item (JS-rendered) */
@@ -253,7 +253,7 @@
     gap: 8px;
     padding: 8px;
     border-radius: 8px;
-    background-color: #111111;
+    background-color: #111;
     border: 1px solid #1a1a1a;
     cursor: pointer;
     width: 100%;
@@ -277,7 +277,7 @@
   /* Highlight items in notes pane */
   .highlight-item {
     font-size: 12px;
-    color: #888888;
+    color: #888;
     border-left-width: 2px;
     padding-left: 8px;
     padding-top: 2px;
@@ -288,7 +288,7 @@
     gap: 4px;
   }
   .hl-remove {
-    color: #555555;
+    color: #555;
     background: transparent;
     border: 0;
     cursor: pointer;
@@ -310,9 +310,9 @@
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #333333;
+    border: 1px solid #333;
     border-radius: 9999px;
-    color: #dddddd;
+    color: #ddd;
     cursor: pointer;
     font-size: 20px;
   }
@@ -341,18 +341,18 @@
     width: 6px;
     height: 6px;
     border-radius: 9999px;
-    background-color: #333333;
+    background-color: #333;
     transition: background-color 150ms;
   }
   .reels-progress-dot.active {
-    background-color: #dddddd;
+    background-color: #ddd;
   }
 
   /* Prose-like styles for modal-content */
   .prose-custom h1,
   .prose-custom h2,
   .prose-custom h3 {
-    color: #dddddd;
+    color: #ddd;
     font-weight: 600;
     margin-top: 16px;
     margin-bottom: 8px;
@@ -376,15 +376,15 @@
     margin-bottom: 12px;
   }
   .prose-custom blockquote {
-    border-left: 2px solid #333333;
+    border-left: 2px solid #333;
     padding-left: 12px;
-    color: #666666;
+    color: #666;
     font-style: italic;
     margin-top: 12px;
     margin-bottom: 12px;
   }
   .prose-custom pre {
-    background-color: #111111;
+    background-color: #111;
     border-radius: 6px;
     padding: 12px;
     overflow-x: auto;
@@ -393,7 +393,7 @@
     margin-bottom: 12px;
   }
   .prose-custom code {
-    background-color: #111111;
+    background-color: #111;
     padding: 2px 4px;
     border-radius: 3px;
     font-size: 13px;
