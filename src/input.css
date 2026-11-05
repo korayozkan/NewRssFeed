@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .snap-y-mandatory { scroll-snap-type: y mandatory; }
+  .snap-start { scroll-snap-align: start; }
+  .snap-always { scroll-snap-stop: always; }
+}
