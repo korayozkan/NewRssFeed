@@ -421,15 +421,33 @@
     </div>
   </div>
 
+  <!-- REELS VIEW -->
+  <div class="reels-view" hidden aria-label="Reels">
+    <div class="reels-topbar">
+      <span class="reels-title">Reels</span>
+      <span class="reels-subtitle">Haber Videoları</span>
+      <button class="reels-close-btn" aria-label="Kapat" title="Kapat">✕</button>
+    </div>
+    <div class="reels-empty" hidden>
+      <div class="reels-empty-icon">▶</div>
+      <p class="reels-empty-title">Video bulunamadı</p>
+      <p class="reels-empty-desc">YouTube veya video içeren haber kaynakları ekleyerek başlayın.</p>
+    </div>
+    <div class="reels-loading" hidden>
+      <span class="spinner" role="status" aria-label="Yükleniyor"></span>
+    </div>
+    <div class="reels-container" role="list" aria-label="Video reels"></div>
+  </div>
+
   <!-- MOBİL TAB BAR -->
   <nav class="mobile-tabs" aria-label="Ana navigasyon">
     <button class="tab-btn active" data-tab="home" aria-label="Ana Sayfa">
       <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span class="tab-label">Ana Sayfa</span>
     </button>
-    <button class="tab-btn" data-tab="discover" aria-label="Keşfet">
-      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <span class="tab-label">Keşfet</span>
+    <button class="tab-btn" data-tab="discover" aria-label="Reels">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3l12 9-12 9V3z"/></svg>
+      <span class="tab-label">Reels</span>
     </button>
     <button class="tab-btn" data-tab="profile" aria-label="Profil">
       <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

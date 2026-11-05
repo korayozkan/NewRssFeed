@@ -36,6 +36,9 @@ function init() {
     showHomepage();
     if (state.articles.length > 0) renderHomepage();
     else qs('.homepage-empty').hidden = false;
+  } else if (state.activeFeedId === 'reels') {
+    showReels();
+    renderReels();
   } else if (state.articles.length > 0) {
     renderArticles();
   } else {

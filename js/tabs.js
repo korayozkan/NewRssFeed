@@ -28,6 +28,7 @@ function switchTab(tab) {
   if (tab === 'home') {
     profileView.hidden = true;
     qs('.main').style.display = '';
+    if (qs('.reels-view')) qs('.reels-view').hidden = true;
     showHomepage();
     if (state.articles.length > 0) renderHomepage();
     else qs('.homepage-empty').hidden = false;
@@ -35,15 +36,17 @@ function switchTab(tab) {
   } else if (tab === 'discover') {
     profileView.hidden = true;
     qs('.main').style.display = '';
-    hideHomepage();
-    state.activeFeedId = 'all';
-    updatePageTitle();
-    renderArticles();
-    renderFeedList();
-    // filter-bar ve topbar görünür
-    qs('.filter-bar').hidden = false;
+    // Reels view
+    qs('.homepage-view').hidden  = true;
+    qs('.articles-wrap').hidden  = true;
+    qs('.filter-bar').hidden     = true;
+    qs('.reels-view').hidden     = false;
+    qs('.page-title').textContent = 'Reels';
+    renderReels();
 
   } else if (tab === 'profile') {
+    if (qs('.reels-view')) qs('.reels-view').hidden = true;
+    pauseActiveReel();
     qs('.main').style.display = 'none';
     profileView.hidden = false;
     renderMobileFeedList();

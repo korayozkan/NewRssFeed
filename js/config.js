@@ -192,3 +192,76 @@ const PLATFORM_DIRECT = {
   hn:    'https://hnrss.org/frontpage', // Hacker News ön sayfa RSS'i
   devto: 'https://dev.to/feed',         // Dev.to genel akış
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. ÖNERİLEN VIDEO KANALLARI (Reels boş durum)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Reels sekmesinde video bulunamadığında gösterilen önerilen YouTube kanalları.
+ * Her kayıt: name, url (YouTube RSS feed URL'si), category (ikon/etiket için)
+ *
+ * @type {Array<{name: string, url: string, category: string, channelId: string}>}
+ */
+const SUGGESTED_VIDEO_FEEDS = [
+  {
+    name: 'BBC News',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UC16niRr50-MSBwiO3YDb3RA',
+    category: 'Dünya',
+    channelId: 'UC16niRr50-MSBwiO3YDb3RA',
+  },
+  {
+    name: 'CNN',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCupvZG-5ko_eiXAupbDfxWw',
+    category: 'Haber',
+    channelId: 'UCupvZG-5ko_eiXAupbDfxWw',
+  },
+  {
+    name: 'Al Jazeera English',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCNye-wNBqNL5ZzHSJj3l8Bg',
+    category: 'Dünya',
+    channelId: 'UCNye-wNBqNL5ZzHSJj3l8Bg',
+  },
+  {
+    name: 'TED Talks',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCAuUUnT6oDeKwE6v1NGQxug',
+    category: 'Eğitim',
+    channelId: 'UCAuUUnT6oDeKwE6v1NGQxug',
+  },
+  {
+    name: 'Marques Brownlee',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduvYEL83R_U4JriQ',
+    category: 'Teknoloji',
+    channelId: 'UCBJycsmduvYEL83R_U4JriQ',
+  },
+  {
+    name: 'Linus Tech Tips',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw',
+    category: 'Teknoloji',
+    channelId: 'UCXuqSBlHAE6Xw-yeJA0Tunw',
+  },
+  {
+    name: 'Veritasium',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA',
+    category: 'Bilim',
+    channelId: 'UCHnyfMqiRRG1u-2MsSQLbXA',
+  },
+  {
+    name: 'Kurzgesagt',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q',
+    category: 'Bilim',
+    channelId: 'UCsXVk37bltHxD1rDPwtNM8Q',
+  },
+  {
+    name: 'Bloomberg Technology',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UCrM7B7SL_g1edFOnmj-SDKg',
+    category: 'Finans',
+    channelId: 'UCrM7B7SL_g1edFOnmj-SDKg',
+  },
+  {
+    name: 'Reuters',
+    url:  'https://www.youtube.com/feeds/videos.xml?channel_id=UChqUTb7kYRX8-EiaN3XFrSQ',
+    category: 'Haber',
+    channelId: 'UChqUTb7kYRX8-EiaN3XFrSQ',
+  },
+];

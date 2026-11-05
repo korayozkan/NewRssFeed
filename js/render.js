@@ -222,6 +222,11 @@ function renderFeedList() {
     '<span class="feed-favicon-placeholder">⌂</span>' +
     '<span class="feed-name">Anasayfa</span></div>';
 
+  html += '<div class="feed-item' + (state.activeFeedId === 'reels' ? ' active' : '') +
+    '" data-feedid="reels" role="button" tabindex="0" aria-label="Reels - Video haberler">' +
+    '<span class="feed-favicon-placeholder" style="font-size:13px">▶</span>' +
+    '<span class="feed-name">Reels</span></div>';
+
   html += '<div class="feed-item' + (state.activeFeedId === 'all' ? ' active' : '') +
     '" data-feedid="all" role="button" tabindex="0" aria-label="Tüm haberler">' +
     '<span class="feed-favicon-placeholder">☰</span>' +
@@ -249,6 +254,13 @@ function renderFeedList() {
       if (e.target.closest('.feed-remove')) return;
       state.activeFeedId = el.dataset.feedid;
       if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); }
+      else if (state.activeFeedId === 'reels') {
+        hideHomepage();
+        hideReels();  // önce gizleyip yeniden aç (temiz render)
+        showReels();
+        renderReels();
+        qs('.page-title').textContent = 'Reels';
+      }
       else { hideHomepage(); updatePageTitle(); renderArticles(); }
       renderFeedList();
       closeSidebar();
@@ -488,12 +500,14 @@ function showHomepage() {
   qs('.articles-wrap').hidden   = true;
   qs('.filter-bar').hidden      = true;
   qs('.page-title').textContent = 'Anasayfa';
+  hideReels();
 }
 
 function hideHomepage() {
   qs('.homepage-view').hidden = true;
   qs('.articles-wrap').hidden = false;
   qs('.filter-bar').hidden    = false;
+  if (qs('.reels-view')) qs('.reels-view').hidden = true;
 }
 
 // ── ANALİTİK ───────────────────────────────────────────────────────────────
@@ -578,6 +592,7 @@ function renderAnalytics() {
 function updatePageTitle() {
   const el = qs('.page-title');
   if (state.activeFeedId === 'home')     el.textContent = 'Anasayfa';
+  else if (state.activeFeedId === 'reels') el.textContent = 'Reels';
   else if (state.activeFeedId === 'all') el.textContent = 'Tüm Haberler';
   else {
     const feed = state.feeds.find(function(f) { return f.id === state.activeFeedId; });
@@ -587,3 +602,513 @@ function updatePageTitle() {
 
 function openSidebar()  { qs('.sidebar').classList.add('open');    qs('.overlay').classList.add('visible'); }
 function closeSidebar() { qs('.sidebar').classList.remove('open'); qs('.overlay').classList.remove('visible'); }
+
+// ── REELS ─────────────────────────────────────────────────────────────────
+// Feed makalelerinden video içeriklerini çıkarır ve dikey scroll reels gösterir.
+
+/**
+ * Bir makalenin HTML içeriğinden ya da URL'sinden video kaynağını tespit eder.
+ * Desteklenenler: YouTube, doğrudan video dosyaları, HTML5 <video> etiketi.
+ * @returns {{ type: 'youtube'|'video'|null, src: string|null, thumb: string|null }}
+ */
+function extractVideo(article) {
+  const content = article.content || article.desc || '';
+
+  // 1) YouTube iframe embed (<iframe src="https://www.youtube.com/embed/...">)
+  var iframeMatch = content.match(/<iframe[^>]+src=["']([^"']*(?:youtube\.com\/embed|youtu\.be)[^"']*)["']/i);
+  if (iframeMatch) {
+    var videoId = extractYouTubeId(iframeMatch[1]);
+    if (videoId) return { type: 'youtube', src: videoId, thumb: 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg' };
+  }
+
+  // 2) YouTube link (article.url veya içerik içinde)
+  var ytSources = [article.url || ''];
+  var linkMatches = content.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?[^"'\s<>]*|youtu\.be\/[\w-]+)/gi);
+  if (linkMatches) ytSources = ytSources.concat(linkMatches);
+  for (var i = 0; i < ytSources.length; i++) {
+    var vid = extractYouTubeId(ytSources[i]);
+    if (vid) return { type: 'youtube', src: vid, thumb: 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg' };
+  }
+
+  // 3) Video enclosure (RSS <enclosure type="video/...">)
+  if (article.enclosure && article.enclosure.link) {
+    var enc = article.enclosure.link;
+    if (/\.(mp4|webm|ogg|mov)(\?|$)/i.test(enc)) {
+      return { type: 'video', src: enc, thumb: article.image || null };
+    }
+  }
+
+  // 4) <video src="..."> veya <source src="..."> içerik içinde
+  var videoSrcMatch = content.match(/<(?:video|source)[^>]+src=["']([^"']+\.(?:mp4|webm|ogg))["']/i);
+  if (videoSrcMatch) return { type: 'video', src: videoSrcMatch[1], thumb: article.image || null };
+
+  // 5) Başlık + kaynak URL'si YouTube kanalına aitse (feed.js convertToRssUrl ile eklendi)
+  // youtube.com/feeds/videos.xml kaynağından gelen her makale aslında bir YT videosu
+  var feedObj = state.feeds.find(function(f) { return f.id === article.feedId; });
+  if (feedObj && feedObj.url && feedObj.url.indexOf('youtube.com/feeds/videos.xml') !== -1) {
+    var ytLinkMatch = (article.url || '').match(/[?&]v=([\w-]{11})/);
+    if (ytLinkMatch) return { type: 'youtube', src: ytLinkMatch[1], thumb: 'https://img.youtube.com/vi/' + ytLinkMatch[1] + '/hqdefault.jpg' };
+    // YT Atom feed link formatı: watch?v=XXXXX
+    var directMatch = (article.url || '').match(/youtu\.be\/([\w-]{11})/);
+    if (directMatch) return { type: 'youtube', src: directMatch[1], thumb: 'https://img.youtube.com/vi/' + directMatch[1] + '/hqdefault.jpg' };
+  }
+
+  return { type: null, src: null, thumb: null };
+}
+
+/** YouTube URL'sinden 11 karakterlik video ID'sini çıkarır */
+function extractYouTubeId(url) {
+  if (!url) return null;
+  var m;
+  m = url.match(/[?&]v=([\w-]{11})/);  if (m) return m[1];
+  m = url.match(/youtu\.be\/([\w-]{11})/);  if (m) return m[1];
+  m = url.match(/youtube\.com\/embed\/([\w-]{11})/); if (m) return m[1];
+  m = url.match(/youtube\.com\/shorts\/([\w-]{11})/); if (m) return m[1];
+  return null;
+}
+
+/** Video içeren makaleleri filtreler ve sıralar */
+function getVideoArticles() {
+  var result = [];
+  state.articles.forEach(function(a) {
+    var v = extractVideo(a);
+    if (v.type) result.push({ article: a, video: v });
+  });
+  // En yeni önce
+  result.sort(function(a, b) { return new Date(b.article.date) - new Date(a.article.date); });
+  return result;
+}
+
+/** Aktif oynatıcıyı durdur (reels sayfasından çıkılırken kullan) */
+function pauseActiveReel() {
+  var active = document.querySelector('.reel-item.reel-active');
+  if (!active) return;
+  var iframe = active.querySelector('iframe');
+  if (iframe) {
+    try { iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch (_) {}
+  }
+  var video = active.querySelector('video');
+  if (video) { try { video.pause(); } catch (_) {} }
+}
+
+/**
+ * Video bulunamadığında öneri ekranı gösterir.
+ * Kullanıcı önerilen kanala tıklar → addFeed() çalışır → feed yüklenir → reels render edilir.
+ */
+function renderReelsEmpty(emptyEl) {
+  var suggested = typeof SUGGESTED_VIDEO_FEEDS !== 'undefined' ? SUGGESTED_VIDEO_FEEDS : [];
+
+  var catColors = {
+    'Dünya':     '#5b9cf6',
+    'Haber':     '#e84444',
+    'Teknoloji': '#3ecf8e',
+    'Bilim':     '#a78bfa',
+    'Finans':    '#e8b840',
+    'Eğitim':    '#f97316',
+  };
+
+  var suggestHtml = suggested.length
+    ? '<div class="reels-suggest-grid">' +
+        suggested.map(function(ch) {
+          var color = catColors[ch.category] || '#5b9cf6';
+          var thumb = 'https://img.youtube.com/vi/0/mqdefault.jpg'; // generic fallback
+          // Kanal thumbnail: YouTube resmi endpoint
+          var chThumb = 'https://i.ytimg.com/vi/0/default.jpg';
+          return '<button class="reels-suggest-card" data-url="' + escHtml(ch.url) + '" aria-label="' + escHtml(ch.name) + ' ekle">' +
+            '<div class="reels-suggest-art" style="background:' + color + '22;border-color:' + color + '44">' +
+              '<svg class="reels-suggest-play" viewBox="0 0 24 24" fill="' + color + '" aria-hidden="true"><path d="M6 3l12 9-12 9V3z"/></svg>' +
+            '</div>' +
+            '<div class="reels-suggest-info">' +
+              '<span class="reels-suggest-name">' + escHtml(ch.name) + '</span>' +
+              '<span class="reels-suggest-cat" style="color:' + color + '">' + escHtml(ch.category) + '</span>' +
+            '</div>' +
+            '<span class="reels-suggest-add" aria-hidden="true">+</span>' +
+          '</button>';
+        }).join('') +
+      '</div>'
+    : '';
+
+  emptyEl.innerHTML =
+    '<div class="reels-empty-icon">▶</div>' +
+    '<p class="reels-empty-title">Video bulunamadı</p>' +
+    '<p class="reels-empty-desc">Ekli kaynaklarda video içerik yok.<br>Aşağıdan bir kanal ekleyerek başlayabilirsin.</p>' +
+    suggestHtml;
+
+  emptyEl.hidden = false;
+
+  // Tıklama olayları
+  qsa('.reels-suggest-card', emptyEl).forEach(function(card) {
+    card.addEventListener('click', function() {
+      var url = card.dataset.url;
+      if (!url) return;
+      // Zaten ekliyse bildirim göster
+      if (state.feeds.some(function(f) { return f.url === url; })) {
+        showToast('Bu kaynak zaten ekli');
+        return;
+      }
+      card.classList.add('reels-suggest-adding');
+      card.querySelector('.reels-suggest-add').textContent = '…';
+      // Reels sekmesinde kalmasını sağla — addFeed sonrası renderReels tetiklensin
+      state.activeFeedId = 'reels';
+      addFeed(url);
+    });
+  });
+}
+
+/** Reels görünümünü render eder — TikTok/Instagram tarzı tam ekran snap scroll */
+function renderReels() {
+  var view      = qs('.reels-view');
+  var container = qs('.reels-container');
+  var emptyEl   = qs('.reels-empty');
+  var loadingEl = qs('.reels-loading');
+
+  if (!view || !container) return;
+
+  // Önceki navigasyon event'lerini temizle
+  if (view._reelsCleanup) { view._reelsCleanup(); view._reelsCleanup = null; }
+
+  loadingEl.hidden = false;
+  emptyEl.hidden   = true;
+  container.innerHTML = '';
+
+  var items = getVideoArticles();
+
+  loadingEl.hidden = true;
+
+  if (items.length === 0) {
+    renderReelsEmpty(emptyEl);
+    return;
+  }
+
+  // ── Kartları oluştur ──────────────────────────────────────────────────────
+  container.innerHTML = items.map(function(item, idx) {
+    var a = item.article;
+    var v = item.video;
+
+    var faviconHtml = a.favicon
+      ? '<img class="reel-favicon" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      : '<span class="reel-favicon-placeholder">' + escHtml(a.feedName.charAt(0)) + '</span>';
+
+    var thumbUrl = v.thumb || '';
+    var mediaHtml;
+    if (v.type === 'youtube') {
+      mediaHtml =
+        '<div class="reel-media" data-ytid="' + escHtml(v.src) + '" data-type="youtube">' +
+          '<div class="reel-thumb-wrap">' +
+            (thumbUrl
+              ? '<img class="reel-thumb" src="' + escHtml(thumbUrl) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
+              : '<div class="reel-thumb reel-thumb-empty"></div>') +
+            '<button class="reel-play-btn" aria-label="Oynat">' +
+              '<svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+            '</button>' +
+          '</div>' +
+          '<div class="reel-player" hidden></div>' +
+        '</div>';
+    } else if (v.type === 'video') {
+      mediaHtml =
+        '<div class="reel-media" data-type="video">' +
+          '<div class="reel-thumb-wrap">' +
+            (thumbUrl
+              ? '<img class="reel-thumb" src="' + escHtml(thumbUrl) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
+              : '<div class="reel-thumb reel-thumb-empty"></div>') +
+            '<button class="reel-play-btn" aria-label="Oynat">' +
+              '<svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+            '</button>' +
+          '</div>' +
+          '<div class="reel-player" hidden>' +
+            '<video class="reel-video-el" src="' + escHtml(v.src) + '" controls playsinline preload="none"></video>' +
+          '</div>' +
+        '</div>';
+    } else {
+      // Video yok — büyük thumbnail placeholder
+      mediaHtml =
+        '<div class="reel-media" data-type="none">' +
+          '<div class="reel-thumb-wrap">' +
+            (a.image
+              ? '<img class="reel-thumb" src="' + escHtml(a.image) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
+              : '<div class="reel-thumb reel-thumb-empty"></div>') +
+            '<div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#aaa;font-size:11px;padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px)">Video yok</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    var tagsHtml = (a.tags && a.tags.length)
+      ? a.tags.slice(0, 3).map(function(t) { return '<span class="reel-tag">' + escHtml(t) + '</span>'; }).join('')
+      : '';
+
+    return '<div class="reel-item' + (idx === 0 ? ' reel-active' : '') + '" data-id="' + escHtml(a.id) + '" data-idx="' + idx + '" role="listitem">' +
+      mediaHtml +
+      '<div class="reel-info">' +
+        '<div class="reel-source-row">' +
+          faviconHtml +
+          '<span class="reel-source-name">' + escHtml(a.feedName) + '</span>' +
+          '<time class="reel-date">' + formatDate(a.date) + '</time>' +
+        '</div>' +
+        '<h3 class="reel-title">' + escHtml(a.title) + '</h3>' +
+        (a.desc ? '<p class="reel-desc">' + escHtml(a.desc) + '</p>' : '') +
+        (tagsHtml ? '<div class="reel-tags">' + tagsHtml + '</div>' : '') +
+        '<div class="reel-actions">' +
+          '<button class="reel-action-btn reel-read-btn" data-id="' + escHtml(a.id) + '" aria-label="Haberi oku">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
+            'Haberi Oku' +
+          '</button>' +
+          '<a class="reel-action-btn reel-open-btn" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener noreferrer" aria-label="Kaynakta aç">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+            'Aç' +
+          '</a>' +
+          '<button class="reel-star-btn' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '">' +
+            (a.starred ? '★' : '☆') +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // ── Navigasyon butonları (masaüstü) ──────────────────────────────────────
+  // Eski nav butonlarını kaldır
+  qsa('.reels-nav-btn, .reels-progress', view).forEach(function(el) { el.remove(); });
+
+  var navPrev = document.createElement('button');
+  navPrev.className = 'reels-nav-btn reels-nav-prev';
+  navPrev.setAttribute('aria-label', 'Önceki video');
+  navPrev.innerHTML = '&#8679;';
+  view.appendChild(navPrev);
+
+  var navNext = document.createElement('button');
+  navNext.className = 'reels-nav-btn reels-nav-next';
+  navNext.setAttribute('aria-label', 'Sonraki video');
+  navNext.innerHTML = '&#8681;';
+  view.appendChild(navNext);
+
+  // ── İlerleme göstergesi ──────────────────────────────────────────────────
+  var MAX_DOTS = 8;
+  var progressEl = document.createElement('div');
+  progressEl.className = 'reels-progress';
+  var dotCount = Math.min(items.length, MAX_DOTS);
+  for (var d = 0; d < dotCount; d++) {
+    var dot = document.createElement('div');
+    dot.className = 'reels-progress-dot' + (d === 0 ? ' active' : '');
+    progressEl.appendChild(dot);
+  }
+  view.appendChild(progressEl);
+
+  // ── Aktif index takibi ───────────────────────────────────────────────────
+  var currentIdx = 0;
+
+  function updateActiveReel(newIdx) {
+    if (newIdx < 0 || newIdx >= items.length) return;
+    var allItems = qsa('.reel-item', container);
+
+    // Önceki aktifi temizle
+    if (allItems[currentIdx]) allItems[currentIdx].classList.remove('reel-active');
+
+    currentIdx = newIdx;
+    if (allItems[currentIdx]) allItems[currentIdx].classList.add('reel-active');
+
+    // Progress dots güncelle
+    var dots = qsa('.reels-progress-dot', progressEl);
+    if (dots.length > 0) {
+      var dotIdx = Math.min(newIdx, MAX_DOTS - 1);
+      dots.forEach(function(dot, i) { dot.classList.toggle('active', i === dotIdx); });
+    }
+
+    // Scroll
+    if (allItems[currentIdx]) {
+      allItems[currentIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function stopCurrentVideo() {
+    var allItems = qsa('.reel-item', container);
+    var active = allItems[currentIdx];
+    if (!active) return;
+    var iframe = active.querySelector('iframe');
+    if (iframe) {
+      try { iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch (_) {}
+      var playerDiv = iframe.closest('.reel-player');
+      if (playerDiv) {
+        playerDiv.hidden = true;
+        playerDiv.innerHTML = '';
+        var thumbWrap = playerDiv.previousElementSibling;
+        if (thumbWrap) thumbWrap.hidden = false;
+      }
+    }
+    var video = active.querySelector('video');
+    if (video) { try { video.pause(); } catch (_) {} }
+  }
+
+  // Nav butonları
+  navPrev.addEventListener('click', function() {
+    stopCurrentVideo();
+    updateActiveReel(currentIdx - 1);
+  });
+  navNext.addEventListener('click', function() {
+    stopCurrentVideo();
+    updateActiveReel(currentIdx + 1);
+  });
+
+  // ── Klavye navigasyonu ───────────────────────────────────────────────────
+  function onKeyDown(e) {
+    if (qs('.reels-view').hidden) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      stopCurrentVideo();
+      updateActiveReel(currentIdx + 1);
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      stopCurrentVideo();
+      updateActiveReel(currentIdx - 1);
+    }
+  }
+  document.addEventListener('keydown', onKeyDown);
+
+  // ── Scroll'dan aktif index güncelle ─────────────────────────────────────
+  var scrollTimer = null;
+  function onContainerScroll() {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function() {
+      var allItems = qsa('.reel-item', container);
+      var containerRect = container.getBoundingClientRect();
+      var closestIdx = 0;
+      var closestDist = Infinity;
+      allItems.forEach(function(item, i) {
+        var rect = item.getBoundingClientRect();
+        var dist = Math.abs(rect.top - containerRect.top);
+        if (dist < closestDist) { closestDist = dist; closestIdx = i; }
+      });
+      if (closestIdx !== currentIdx) {
+        allItems[currentIdx] && allItems[currentIdx].classList.remove('reel-active');
+        currentIdx = closestIdx;
+        allItems[currentIdx] && allItems[currentIdx].classList.add('reel-active');
+        var dots = qsa('.reels-progress-dot', progressEl);
+        if (dots.length > 0) {
+          var dotIdx = Math.min(currentIdx, MAX_DOTS - 1);
+          dots.forEach(function(dot, i) { dot.classList.toggle('active', i === dotIdx); });
+        }
+      }
+    }, 80);
+  }
+  container.addEventListener('scroll', onContainerScroll);
+
+  // ── Touch / swipe (mobil) ────────────────────────────────────────────────
+  var touchStartY = 0;
+  var touchStartX = 0;
+  function onTouchStart(e) { touchStartY = e.touches[0].clientY; touchStartX = e.touches[0].clientX; }
+  function onTouchEnd(e) {
+    var dy = touchStartY - e.changedTouches[0].clientY;
+    var dx = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(dy) < Math.abs(dx) * 0.8) return; // yatay swipe — ignore
+    if (Math.abs(dy) < 40) return;                  // çok kısa — ignore
+    stopCurrentVideo();
+    if (dy > 0) updateActiveReel(currentIdx + 1);
+    else         updateActiveReel(currentIdx - 1);
+  }
+  container.addEventListener('touchstart', onTouchStart, { passive: true });
+  container.addEventListener('touchend',   onTouchEnd,   { passive: true });
+
+  // ── Cleanup kaydı ────────────────────────────────────────────────────────
+  view._reelsCleanup = function() {
+    document.removeEventListener('keydown', onKeyDown);
+    container.removeEventListener('scroll', onContainerScroll);
+    container.removeEventListener('touchstart', onTouchStart);
+    container.removeEventListener('touchend',   onTouchEnd);
+    clearTimeout(scrollTimer);
+  };
+
+  // ── Event listener'lar ───────────────────────────────────────────────────
+
+  // Oynat butonu
+  qsa('.reel-play-btn', container).forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var mediaDiv  = btn.closest('.reel-media');
+      var thumbWrap = mediaDiv.querySelector('.reel-thumb-wrap');
+      var playerDiv = mediaDiv.querySelector('.reel-player');
+      var type      = mediaDiv.dataset.type;
+
+      thumbWrap.hidden = true;
+      playerDiv.hidden = false;
+
+      if (type === 'youtube') {
+        var ytId = mediaDiv.dataset.ytid;
+        playerDiv.innerHTML =
+          '<iframe class="reel-iframe" ' +
+          'src="https://www.youtube.com/embed/' + escHtml(ytId) + '?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" ' +
+          'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+          'allowfullscreen title="Video player"></iframe>';
+      } else {
+        var videoEl = playerDiv.querySelector('video');
+        if (videoEl) { videoEl.play().catch(function() {}); }
+      }
+    });
+  });
+
+  // Haberi oku
+  qsa('.reel-read-btn', container).forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openModal(btn.dataset.id);
+    });
+  });
+
+  // Yıldız
+  qsa('.reel-star-btn', container).forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var starred = toggleStar(btn.dataset.id);
+      btn.classList.toggle('starred', starred);
+      btn.textContent = starred ? '★' : '☆';
+      btn.setAttribute('aria-label', starred ? 'Yıldızı kaldır' : 'Yıldız ekle');
+    });
+  });
+}
+
+/** Reels view'u göster */
+function showReels() {
+  var reelsView = qs('.reels-view');
+  if (!reelsView) return;
+  reelsView.hidden = false;
+  document.body.classList.add('reels-active');
+
+  // Kapatma butonu
+  var closeBtn = qs('.reels-close-btn', reelsView);
+  if (closeBtn && !closeBtn._bound) {
+    closeBtn._bound = true;
+    closeBtn.addEventListener('click', function () {
+      state.activeFeedId = 'home';
+      hideReels();
+      showHomepage();
+      renderHomepage();
+      renderFeedList();
+      updatePageTitle();
+    });
+  }
+}
+
+/** Reels view'u gizle — aktif oynatıcıları durdur, iframe'leri temizle */
+function hideReels() {
+  pauseActiveReel();
+  var reelsView = qs('.reels-view');
+  if (!reelsView) return;
+
+  // Navigasyon event listener'larını temizle
+  if (reelsView._reelsCleanup) { reelsView._reelsCleanup(); reelsView._reelsCleanup = null; }
+  if (reelsView._resizeObs)    { reelsView._resizeObs.disconnect(); reelsView._resizeObs = null; }
+
+  // Tüm iframe'leri kaldır (arka planda ses/video çalmasın)
+  qsa('.reel-player', reelsView).forEach(function(p) {
+    p.innerHTML = '';
+    p.hidden = true;
+    var thumbWrap = p.previousElementSibling;
+    if (thumbWrap) thumbWrap.hidden = false;
+  });
+  qsa('.reel-video-el', reelsView).forEach(function(v) {
+    try { v.pause(); v.src = ''; } catch(_) {}
+  });
+
+  // Nav butonları ve progress'i kaldır
+  qsa('.reels-nav-btn, .reels-progress', reelsView).forEach(function(el) { el.remove(); });
+
+  document.body.classList.remove('reels-active');
+  reelsView.hidden = true;
+}

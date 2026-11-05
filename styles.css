@@ -1271,6 +1271,18 @@ body.hide-images .post-image        { display: none; }
   .suggestions-section { max-width: 100%; }
   .sugg-thumb { width: 40px; height: 32px; }
 
+  /* ── REELS VIEW (mobil) ───────────────────────────────────────── */
+  /* position: fixed; inset: 0 zaten tam ekran — mobilde tab bar üstüne çık */
+  .reels-view {
+    z-index: 200;
+    bottom: 0;   /* tab bar üstünde değil, tam ekran */
+  }
+  /* mobilde reels-container tam dolu */
+  .reels-container {
+    height: 100%;
+    overflow-y: scroll;
+  }
+
   /* ── MOBİL TAB BAR ────────────────────────────────────────────── */
   /* Sidebar'ı tamamen gizle, hamburger menüyü de gizle */
   aside         { display: none !important; }
@@ -1381,8 +1393,8 @@ body.hide-images .post-image        { display: none; }
   /* Profil view'deyken main'i gizle */
   body.tab-profile .main { display: none; }
   body.tab-discover .homepage-view { display: none !important; }
-  body.tab-discover .articles-wrap { display: flex !important; }
-  body.tab-discover .filter-bar    { display: flex !important; }
+  body.tab-discover .articles-wrap { display: none !important; }
+  body.tab-discover .filter-bar    { display: none !important; }
 }
 
 /* Tab bar ve profil view — varsayılan olarak masaüstünde gizli */
@@ -1462,3 +1474,513 @@ body.hide-images .post-image        { display: none; }
   flex-shrink: 0;
   display: block;
 }
+
+/* ================================================================
+   REELS VIEW  —  TikTok/Instagram tarzı tam-ekran dikey snap scroll
+   ================================================================ */
+
+/* Reels view: TAM EKRAN — topbar, sidebar her şeyin üstünde */
+.reels-view {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Reels topbar — tam ekranda üstte ince şerit */
+.reels-topbar {
+  padding: 10px 16px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  z-index: 2;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.reels-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+.reels-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+}
+/* Kapatma butonu */
+.reels-close-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.reels-close-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+
+/* Boş / yükleniyor durumu */
+.reels-empty,
+.reels-loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  color: #444;
+  text-align: center;
+  padding: 28px 16px 40px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  scrollbar-width: none;
+}
+.reels-empty::-webkit-scrollbar { display: none; }
+.reels-loading {
+  justify-content: center;
+}
+.reels-empty-icon {
+  font-size: 36px;
+  color: #222;
+  line-height: 1;
+  margin-top: 8px;
+}
+.reels-empty-title {
+  font-size: 15px;
+  color: #555;
+  font-weight: 600;
+}
+.reels-empty-desc {
+  font-size: 12px;
+  color: #333;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+/* ── Öneri kanallar grid ── */
+.reels-suggest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  /* width: 100% yerine align-self:stretch — parent padding'inden etkilenir */
+  align-self: stretch;
+  margin-top: 6px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.reels-suggest-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0d0d0d;
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
+  padding: 9px 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.reels-suggest-card:hover {
+  background: #141414;
+  border-color: #2a2a2a;
+  transform: translateY(-1px);
+}
+.reels-suggest-card:active { transform: scale(0.98); }
+.reels-suggest-card.reels-suggest-adding {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.reels-suggest-art {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.reels-suggest-play {
+  width: 14px;
+  height: 14px;
+}
+
+.reels-suggest-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.reels-suggest-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.reels-suggest-cat {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.reels-suggest-add {
+  font-size: 16px;
+  color: #333;
+  line-height: 1;
+  font-weight: 400;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  transition: color 0.15s;
+}
+.reels-suggest-card:hover .reels-suggest-add { color: #888; }
+
+/* ── Container: dikey snap-scroll, her kart tam yükseklik ── */
+.reels-container {
+  flex: 1;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  min-height: 0;
+}
+.reels-container::-webkit-scrollbar { display: none; }
+
+/* ── Tek bir reel kartı ── */
+.reel-item {
+  position: relative;
+  width: 100%;
+  height: 100vh;    /* reels-view position:fixed inset:0 → her zaman viewport yüksekliği */
+  min-height: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  background: #000;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ── Video / media alanı: kartın tamamını kapla ── */
+.reel-media {
+  position: absolute;
+  inset: 0;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+/* Thumbnail */
+.reel-thumb-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reel-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.reel-thumb-empty {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #0d0d0d 0%, #1a1a1a 100%);
+}
+
+/* Oynat butonu — ortada büyük daire */
+.reel-play-btn {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.reel-play-btn:hover  { background: rgba(0, 0, 0, 0.45); }
+.reel-play-btn svg {
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 3px 12px rgba(0,0,0,0.8));
+  transition: transform 0.15s;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  padding: 12px;
+}
+.reel-play-btn:hover svg { transform: scale(1.08); }
+
+/* Player (iframe veya video tam dolu) */
+.reel-player {
+  position: absolute;
+  inset: 0;
+}
+.reel-iframe,
+.reel-video-el {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: none;
+  background: #000;
+}
+
+/* ── Bilgi overlay: kartın alt kısmında gradient üzerine ── */
+.reel-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 60px 16px 20px;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 55%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  pointer-events: none;   /* overlay tıklamayı engellemesin */
+}
+/* Buton içeren elemanlar pointer-events'i yeniden aktif etmeli */
+.reel-info .reel-actions,
+.reel-info .reel-read-btn,
+.reel-info .reel-open-btn,
+.reel-info .reel-star-btn {
+  pointer-events: auto;
+}
+
+/* Kaynak satırı */
+.reel-source-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.reel-favicon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.reel-favicon-placeholder {
+  width: 18px;
+  height: 18px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.reel-source-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+.reel-date {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  flex-shrink: 0;
+}
+
+/* Başlık ve açıklama */
+.reel-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.reel-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Etiketler */
+.reel-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.reel-tag {
+  font-size: 11px;
+  color: var(--accent, #5b9cf6);
+  opacity: 0.9;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+/* Aksiyonlar — overlay içinde butonlar */
+.reel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.reel-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  padding: 5px 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.1s, border-color 0.1s;
+}
+.reel-action-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.reel-action-btn:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.35);
+}
+.reel-read-btn:hover {
+  background: rgba(91,156,246,0.25);
+  border-color: var(--accent, #5b9cf6);
+  color: var(--accent, #5b9cf6);
+}
+.reel-open-btn:hover {
+  background: rgba(62,207,142,0.2);
+  border-color: #3ecf8e;
+  color: #3ecf8e;
+}
+.reel-star-btn {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.7);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px 7px;
+  line-height: 1;
+  margin-left: auto;
+  transition: color 0.12s, transform 0.12s, background 0.12s;
+}
+.reel-star-btn:hover  { color: #e8b840; transform: scale(1.15); background: rgba(232,184,64,0.2); }
+.reel-star-btn.starred { color: #e8b840; }
+
+/* ── Navigasyon okları (masaüstü) ── */
+.reels-nav-btn {
+  position: absolute;
+  right: 16px;
+  z-index: 10;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+}
+.reels-nav-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.08); }
+.reels-nav-prev { bottom: calc(50% + 28px); }
+.reels-nav-next { bottom: calc(50% - 68px); }
+
+/* ── İlerleme göstergesi (sağ kenar) ── */
+.reels-progress {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+.reels-progress-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.2s, transform 0.2s;
+}
+.reels-progress-dot.active {
+  background: #fff;
+  transform: scale(1.4);
+}
+
+/* ── MOBİL uyarlamaları ── */
+@media (max-width: 640px) {
+  /* Nav butonları mobilde gizle (swipe var) */
+  .reels-nav-btn { display: none; }
+  /* Progress bar daha küçük */
+  .reels-progress { right: 4px; gap: 3px; }
+  /* Mobil kart tam ekran */
+  .reel-item { height: 100vh; min-height: 0; }
+  /* Mobilde öneri grid tek sütun */
+  .reels-suggest-grid { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   REELS AKTİF — body.reels-active kuralları
+   Hem masaüstü hem mobilde reels açıkken gereksiz UI'ı gizle
+   ================================================================ */
+body.reels-active .filter-bar   { display: none !important; }
+body.reels-active .homepage-view { display: none !important; }
+body.reels-active .articles-wrap { display: none !important; }
+body.reels-active .layout-btns  { display: none !important; }
+body.reels-active .search-wrap  { display: none !important; }
+body.reels-active .analytics-btn { display: none !important; }

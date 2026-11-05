@@ -56,13 +56,30 @@ function parseRawXml(xmlText, feed) {
         const linkEl    = entry.querySelector('link[rel="alternate"]') || entry.querySelector('link');
         const link      = linkEl ? (linkEl.getAttribute('href') || linkEl.textContent.trim()) : '';
         const contentEl = entry.querySelector('content') || entry.querySelector('summary');
+
+        // YouTube Atom feed: <yt:videoId> ve <media:group> <media:thumbnail>
+        var ytVideoIdEl = entry.querySelector('videoId') || Array.from(entry.childNodes).find(function(n){ return n.localName === 'videoId'; });
+        var mediaThumbnailEl = entry.querySelector('thumbnail') || entry.querySelector('[medium="image"]');
+        var mediaContentEl  = entry.querySelector('[medium="video"], [medium="video/mp4"]');
+
+        var enclosure = null;
+        if (mediaContentEl) {
+          var cUrl = mediaContentEl.getAttribute('url');
+          if (cUrl) enclosure = { link: cUrl };
+        }
+
+        var thumbnail = mediaThumbnailEl
+          ? (mediaThumbnailEl.getAttribute('url') || mediaThumbnailEl.getAttribute('src') || null)
+          : null;
+
         items.push({
           title:       (entry.querySelector('title')   || {}).textContent || '',
           link,
           pubDate:     (entry.querySelector('published') || entry.querySelector('updated') || {}).textContent || '',
           description: contentEl ? contentEl.textContent : '',
           content:     contentEl ? contentEl.innerHTML   : '',
-          enclosure: null, thumbnail: null,
+          enclosure,
+          thumbnail,
         });
       });
     } else {
@@ -74,16 +91,28 @@ function parseRawXml(xmlText, feed) {
       doc.querySelectorAll('item').forEach(function(item) {
         const encEl   = item.querySelector('enclosure');
         const mediaEl = item.querySelector('thumbnail, [medium="image"]');
+        // media:content ile video URL'si
+        const mediaVideoEl = item.querySelector('[medium="video"], [medium="video/mp4"]') ||
+                             Array.from(item.childNodes).find(function(n){ return n.localName === 'content' && n.getAttribute && (n.getAttribute('medium') || '').startsWith('video'); });
         const descEl  = item.querySelector('description');
         let contentEl = null;
         item.childNodes.forEach(function(n) { if (n.localName === 'encoded') contentEl = n; });
+
+        var enclosure = null;
+        if (encEl) {
+          enclosure = { link: encEl.getAttribute('url') };
+        } else if (mediaVideoEl) {
+          var vUrl = mediaVideoEl.getAttribute('url');
+          if (vUrl) enclosure = { link: vUrl };
+        }
+
         items.push({
           title:       (item.querySelector('title') || {}).textContent || '',
           link:        (item.querySelector('link')  || {}).textContent || '',
           pubDate:     (item.querySelector('pubDate') || {}).textContent || '',
           description: descEl    ? descEl.textContent    : '',
           content:     contentEl ? contentEl.textContent : (descEl ? descEl.textContent : ''),
-          enclosure:   encEl   ? { link: encEl.getAttribute('url') }                          : null,
+          enclosure,
           thumbnail:   mediaEl ? (mediaEl.getAttribute('url') || mediaEl.getAttribute('src')) : null,
         });
       });
@@ -330,7 +359,9 @@ async function addFeed(rawUrl) {
     state.articles.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
     saveState();
     renderFeedList();
-    if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); } else { renderArticles(); }
+    if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); }
+    else if (state.activeFeedId === 'reels') { showReels(); renderReels(); }
+    else { renderArticles(); }
     renderSmartTags();
     showToast('"' + feed.name + '" eklendi');
   } catch (err) {
@@ -346,7 +377,9 @@ function removeFeed(feedId) {
   if (state.activeFeedId === feedId) state.activeFeedId = 'home';
   saveState();
   renderFeedList();
-  if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); } else { renderArticles(); }
+  if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); }
+  else if (state.activeFeedId === 'reels') { showReels(); renderReels(); }
+  else { renderArticles(); }
   renderSmartTags();
   updatePageTitle();
   showToast('Kaynak silindi');
@@ -396,7 +429,9 @@ async function refreshAll() {
   setLoading(false);
   btn.classList.remove('spinning');
   renderFeedList();
-  if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); } else { renderArticles(); }
+  if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); }
+  else if (state.activeFeedId === 'reels') { showReels(); renderReels(); }
+  else { renderArticles(); }
   renderSmartTags();
 }
 
