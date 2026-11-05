@@ -2,6 +2,9 @@
 
 /* ── Tailwind v4 source scanning ───────────────────────────────────────── */
 @source "../index.html";
+@source "../profil.html";
+@source "../login.html";
+@source "../register.html";
 @source "../js/**/*.js";
 @source "../app.js";
 
@@ -15,6 +18,10 @@
 
 /* ── Utilities ──────────────────────────────────────────────────────────── */
 @layer utilities {
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
   .scrollbar-none {
     scrollbar-width: none;
   }
@@ -69,6 +76,13 @@
     background-color: #0d1520;
   }
 
+  /* Discover filter chip active */
+  .discover-filter-chip.active {
+    border-color: #5b9cf6;
+    color: #5b9cf6;
+    background-color: #0d1520;
+  }
+
   /* Layout button active */
   .layout-btn.active {
     color: #ddd;
@@ -92,6 +106,7 @@
     color: #777;
     font-size: 13px;
     position: relative;
+    -webkit-user-select: none;
     user-select: none;
   }
   .feed-item:hover {
@@ -207,6 +222,20 @@
     border-color: #fff;
     transform: scale(1.1);
   }
+
+  /* Accent swatch colours (replaces inline style) */
+  .swatch-blue    { background: #5b9cf6; }
+  .swatch-green   { background: #3ecf8e; }
+  .swatch-yellow  { background: #e8b840; }
+  .swatch-red     { background: #e84444; }
+  .swatch-purple  { background: #a78bfa; }
+  .swatch-orange  { background: #f97316; }
+
+  /* Highlight button colours (replaces inline style) */
+  .hl-yellow  { background: #e8b840; }
+  .hl-green   { background: #3ecf8e; }
+  .hl-blue    { background: #5b9cf6; }
+  .hl-red     { background: #e84444; }
 
   /* Toast show */
   .toast.show {

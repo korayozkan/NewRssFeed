@@ -1,4 +1,4 @@
-name: CI / Deploy to GitHub Pages
+name: CI / Deploy
 
 on:
   push:
@@ -7,21 +7,23 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# ── GitHub Pages için gerekli izinler ─────────────────────────────────────────
 permissions:
   contents: read
-  pages: write
+  pages:    write
   id-token: write
 
 concurrency:
   group: "pages-${{ github.ref }}"
   cancel-in-progress: true
 
+# ══════════════════════════════════════════════════════════════════════════════
 jobs:
-  # ── 1. VALIDATE ────────────────────────────────────────────────────────────
-  # HTML ve CSS sözdizimini kontrol eder.
-  # Her push ve PR'da çalışır; deploy bu job'a bağımlıdır.
+
+  # ── 1. VALIDATE ─────────────────────────────────────────────────────────────
+  # JS sözdizimi + Tailwind build kontrolü — her push ve PR'da çalışır.
   validate:
-    name: Validate HTML & CSS
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,26 +33,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
-      - name: Install lint tools
-        run: npm install --no-save htmlhint stylelint stylelint-config-standard
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Lint HTML
-        run: npx htmlhint index.html --config .htmlhintrc || true
-
-      - name: Lint CSS
-        run: npx stylelint "styles.css" --config .stylelintrc.json || true
-
-      - name: Check for JS syntax errors
+      - name: JS syntax check
         run: |
-          for f in js/*.js app.js; do
-            node --check "$f" && echo "✓ $f" || echo "✗ $f SYNTAX ERROR"
+          echo "Checking JS files..."
+          for f in js/*.js js/components/*.js; do
+            node --check "$f" && echo "  ✓ $f" || { echo "  ✗ $f SYNTAX ERROR"; exit 1; }
           done
 
-  # ── 2. DEPLOY ──────────────────────────────────────────────────────────────
-  # Sadece main branch'e push'ta çalışır; validate başarılı olmalı.
-  deploy:
-    name: Deploy to GitHub Pages
+      - name: Tailwind build (dry-run check)
+        run: npx tailwindcss -i ./src/input.css -o ./dist/output.css
+
+  # ── 2. DEPLOY — GitHub Pages ─────────────────────────────────────────────────
+  # Tailwind build çıktısını oluşturur, env.js'i Secret'tan inject eder,
+  # ardından GitHub Pages'e deploy eder.
+  # Sadece main push'unda çalışır.
+  #
+  # Gerekli GitHub Secret'lar (Settings → Secrets → Actions):
+  #   SUPABASE_URL          : https://xxxx.supabase.co
+  #   SUPABASE_ANON_KEY     : eyJhbGci...
+  #   CF_WORKER_URL         : https://rss-proxy.yourname.workers.dev
+  deploy-pages:
+    name: Deploy → GitHub Pages
     needs: validate
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
@@ -60,6 +68,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Tailwind CSS
+        run: npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify
+
+      # env.js'i GitHub Secret'lardan oluştur — bu dosya repoda yok
+      - name: Generate env.js from secrets
+        run: |
+          node -e "
+            const lines = [
+              \"window.ENV_SUPABASE_URL      = '\" + process.env.SUPABASE_URL + \"';\",
+              \"window.ENV_SUPABASE_ANON_KEY = '\" + process.env.SUPABASE_ANON_KEY + \"';\",
+              \"window.ENV_CF_WORKER_URL     = '\" + process.env.CF_WORKER_URL + \"';\",
+            ];
+            require('fs').writeFileSync('env.js', lines.join('\n') + '\n');
+            console.log('env.js generated');
+          "
+        env:
+          SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          CF_WORKER_URL:     ${{ secrets.CF_WORKER_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -72,3 +109,27 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # ── 3. DEPLOY — Cloudflare Worker ────────────────────────────────────────────
+  # cloudflare-worker/ klasöründeki Worker'ı wrangler ile deploy eder.
+  # Sadece main push'unda çalışır.
+  #
+  # Gerekli GitHub Secret'lar:
+  #   CLOUDFLARE_API_TOKEN  : Cloudflare dashboard → API Tokens → "Edit Workers"
+  #   CLOUDFLARE_ACCOUNT_ID : Cloudflare dashboard → sağ alt köşe → Account ID
+  deploy-worker:
+    name: Deploy → Cloudflare Worker
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy Worker with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare-worker
+          # wrangler.toml bu klasörde — otomatik algılanır

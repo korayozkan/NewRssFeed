@@ -7,8 +7,30 @@ var autoRefreshTimer = null;
 // ── Panel aç/kapat ──────────────────────────────────────────────────────────
 function openSettings() {
   syncSettingsPanel();
+  updateProfileCard();
   qs('.settings-panel').hidden = false;
   document.body.style.overflow = 'hidden';
+}
+
+// ── Profil karti istatistiklerini guncelle ──────────────────────────────────
+function updateProfileCard() {
+  var feedCount   = state.feeds.length;
+  var artCount    = state.articles.length;
+  var unreadCount = state.articles.filter(function(a) { return !a.read; }).length;
+
+  qsa('.profile-feed-count').forEach(function(el) {
+    el.textContent = feedCount + ' kaynak';
+  });
+  qsa('.profile-article-count').forEach(function(el) {
+    el.textContent = artCount + ' haber';
+  });
+  qsa('.profile-unread-count').forEach(function(el) {
+    el.textContent = unreadCount + ' okunmamis';
+  });
+
+  // Bildirim noktasi — okunmamis varsa goster
+  var dot = qs('.notif-dot');
+  if (dot) dot.hidden = unreadCount === 0;
 }
 
 function closeSettings() {

@@ -11,531 +11,48 @@
 </head>
 <body class="font-sans bg-black text-[#dddddd] flex h-screen overflow-hidden">
 
-  <!-- SIDEBAR � sadece navigasyon -->
-  <aside class="sidebar fixed inset-y-0 left-0 z-40 w-60 flex flex-col bg-[#0a0a0a] border-r border-[#1a1a1a] -translate-x-full md:translate-x-0 transition-transform duration-200">
-    <header class="flex items-center justify-between px-4 py-4 border-b border-[#1a1a1a]">
-      <strong class="logo-text text-sm font-semibold">NewRssFeed</strong>
-      <button class="sidebar-close md:hidden p-1.5 rounded bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Kenar �ubu�unu kapat">?</button>
-    </header>
-
-    <nav class="flex-1 overflow-y-auto p-2" aria-label="Ana navigasyon">
-      <span class="block text-[10px] text-[#444] uppercase tracking-widest px-2 py-2">Gezinti</span>
-
-      <div class="feed-item" data-feedid="home" role="button" tabindex="0" aria-label="Anasayfa">
-        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span class="flex-1 text-[13px] truncate">Anasayfa</span>
-      </div>
-
-      <div class="feed-item" data-feedid="all" role="button" tabindex="0" aria-label="Kesfet">
-        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span class="flex-1 text-[13px] truncate">Kesfet</span>
-        <span class="sidebar-unread-badge ml-auto text-[11px] text-accent bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full" hidden></span>
-      </div>
-
-      <div class="feed-item" data-feedid="reels" role="button" tabindex="0" aria-label="Reels">
-        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3l12 9-12 9V3z"/></svg>
-        <span class="flex-1 text-[13px] truncate">Reels</span>
-      </div>
-
-      <div class="feed-item sidebar-profile-btn" data-action="profile" role="button" tabindex="0" aria-label="Profil">
-        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span class="flex-1 text-[13px] truncate">Profil</span>
-      </div>
-
-      <div class="w-full h-px bg-[#1a1a1a] my-2"></div>
-      <span class="block text-[10px] text-[#444] uppercase tracking-widest px-2 py-1">Kaynaklar</span>
-      <div class="feed-list" aria-label="Feed listesi"></div>
-    </nav>
-
-    <footer class="p-2 border-t border-[#1a1a1a]">
-      <button class="settings-btn w-full flex items-center gap-2 text-left text-[12px] text-[#666] hover:text-[#ddd] py-1.5 px-2 rounded bg-transparent border-0 cursor-pointer hover:bg-[#111]">
-        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Ayarlar
-      </button>
-    </footer>
-  </aside>
-
-  <!-- OVERLAY -->
-  <div class="overlay fixed inset-0 z-30 bg-black/70 hidden" aria-hidden="true"></div>
-
-  <!-- ANA ICERIK -->
+  <!-- ── ANA İÇERİK (sidebar component tarafından doldurulur) ── -->
   <main class="main flex-1 flex flex-col min-w-0 overflow-hidden bg-black md:ml-60">
 
-    <!-- TOPBAR � baslik + bildirimler -->
-    <header class="topbar flex items-center justify-between h-13 px-4 border-b border-[#1a1a1a] bg-[#0a0a0a]">
-      <div class="flex items-center gap-2">
-        <button class="menu-btn md:hidden p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Menuyu ac">?</button>
-        <h1 class="page-title text-[14px] font-semibold text-[#ddd]">Anasayfa</h1>
-      </div>
-      <div class="flex items-center gap-1">
-        <button class="icon-btn refresh-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer" aria-label="Yenile" title="Yenile">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-        </button>
-        <button class="icon-btn notif-btn relative p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer" aria-label="Bildirimler" title="Bildirimler">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-dot absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-accent hidden"></span>
-        </button>
-      </div>
-    </header>
+    <!-- topbar + filter bar → components/topbar.js tarafından enjekte edilir -->
 
-    <!-- FILTRE CUBUGU -->
-    <nav class="filter-bar flex items-center gap-2 px-4 py-2 border-b border-[#1a1a1a] overflow-x-auto scrollbar-none" aria-label="Filtreler" hidden>
-      <button class="filter-chip active px-3 py-1 rounded-full text-xs border border-accent text-accent bg-[#0d1520] whitespace-nowrap" data-filter="all">Tumu</button>
-      <button class="filter-chip px-3 py-1 rounded-full text-xs border border-[#222] text-[#888] hover:border-[#444] hover:text-[#ddd] whitespace-nowrap" data-filter="unread">Okunmamis</button>
-      <button class="filter-chip px-3 py-1 rounded-full text-xs border border-[#222] text-[#888] hover:border-[#444] hover:text-[#ddd] whitespace-nowrap" data-filter="starred">Yildizli</button>
-      <button class="filter-chip filter-chip-days px-3 py-1 rounded-full text-xs border border-[#222] text-[#888] hover:border-[#444] hover:text-[#ddd] whitespace-nowrap" data-filter="7days" title="Son 7 gun">Son 7 Gun</button>
-      <div class="w-px h-4 bg-[#1a1a1a] shrink-0"></div>
-      <div class="smart-tags flex flex-wrap gap-1"></div>
-    </nav>
-
-    <!-- ANASAYFA -->
+    <!-- Anasayfa -->
     <section class="homepage-view flex-1 overflow-y-auto">
       <div class="homepage-inner max-w-xl mx-auto py-4 px-4">
-        <ol class="homepage-cards flex flex-col gap-4 list-none" aria-label="Gonderi akisi"></ol>
+        <ol class="homepage-cards flex flex-col gap-4 list-none" aria-label="Gönderi akışı"></ol>
         <div class="homepage-empty flex flex-col items-center py-16 text-center" hidden>
-          <p class="empty-title text-[14px] text-[#666]">Henuz haber yok</p>
-          <p class="empty-desc text-[13px] text-[#444] mt-1">Sol panelden RSS kaynagi ekleyerek baslayin.</p>
+          <p class="empty-title text-[14px] text-[#666]">Henüz haber yok</p>
+          <p class="empty-desc text-[13px] text-[#444] mt-1">Sol panelden RSS kaynağı ekleyerek başlayın.</p>
         </div>
         <div class="homepage-loading flex flex-col items-center gap-3 py-16" hidden>
-          <span class="spinner inline-block w-5 h-5 border-2 border-[#1e1e1e] border-t-[#555] rounded-full animate-spin" role="status" aria-label="Yukleniyor"></span>
-          <p class="text-[13px] text-[#444]">Haberler yukleniyor...</p>
+          <span class="spinner inline-block w-5 h-5 border-2 border-[#1e1e1e] border-t-[#555] rounded-full animate-spin" role="status" aria-label="Yükleniyor"></span>
+          <p class="text-[13px] text-[#444]">Haberler yükleniyor...</p>
         </div>
       </div>
     </section>
 
-    <!-- HABERLIK -->
+    <!-- Haberlik (feed view) -->
     <section class="articles-wrap flex-1 overflow-y-auto" hidden>
       <ol class="articles list-none" aria-live="polite" aria-label="Haber listesi"></ol>
       <section class="empty-state flex flex-col items-center py-16 text-center" hidden>
-        <p class="empty-title text-[14px] text-[#666]">Henuz kaynak yok</p>
-        <p class="empty-desc text-[13px] text-[#444] mt-1">Sol panelden bir RSS kaynagi ekleyerek baslayin.</p>
+        <p class="empty-title text-[14px] text-[#666]">Henüz kaynak yok</p>
+        <p class="empty-desc text-[13px] text-[#444] mt-1">Sol panelden bir RSS kaynağı ekleyerek başlayın.</p>
       </section>
       <section class="loading-state flex flex-col items-center gap-3 py-16" hidden>
-        <span class="spinner inline-block w-5 h-5 border-2 border-[#1e1e1e] border-t-[#555] rounded-full animate-spin" role="status" aria-label="Yukleniyor"></span>
-        <p class="text-[13px] text-[#444]">Yukleniyor...</p>
+        <span class="spinner inline-block w-5 h-5 border-2 border-[#1e1e1e] border-t-[#555] rounded-full animate-spin" role="status" aria-label="Yükleniyor"></span>
+        <p class="text-[13px] text-[#444]">Yükleniyor...</p>
       </section>
     </section>
+
   </main>
 
-  <!-- MAKALE OKUMA MODALI -->
-  <div class="modal-backdrop fixed inset-0 z-50 flex items-start justify-center bg-black/70 overflow-y-auto" role="dialog" aria-modal="true" aria-label="Makale okuma" hidden>
-    <article class="modal relative bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl w-full max-w-2xl my-8 mx-4">
-      <header class="modal-header flex items-center justify-between px-5 py-3 border-b border-[#1a1a1a]">
-        <p class="modal-meta text-[11px] text-[#555]"></p>
-        <div class="flex items-center gap-1">
-          <button class="icon-btn modal-star-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Yildiz ekle" title="Yildiz ekle">&#9734;</button>
-          <a class="icon-btn modal-open-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm no-underline" href="#" target="_blank" rel="noopener noreferrer" aria-label="Orijinalde ac" title="Orijinalde ac">&#8599;</a>
-          <button class="icon-btn modal-typo-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Tipografi" title="Okuma ayarlari" aria-pressed="false">Aa</button>
-          <button class="icon-btn modal-zen-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Zen modu" title="Derin okuma modu" aria-pressed="false">&#9678;</button>
-          <button class="icon-btn modal-notes-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Notlar" title="Notlar ve vurgular" aria-pressed="false">&#9998;</button>
-          <button class="icon-btn modal-close-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Kapat">&#10005;</button>
-        </div>
-      </header>
-
-      <div class="typo-panel border-b border-[#1a1a1a] px-5 py-3 bg-[#0d0d0d]" hidden>
-        <div class="typo-row flex items-center gap-3 mb-2">
-          <span class="typo-label w-16 text-[11px] text-[#555]">Font</span>
-          <div class="typo-font-btns flex gap-1">
-            <button class="typo-btn font-btn active px-2 py-1 text-[11px] rounded border border-accent text-accent bg-[#0d1520] cursor-pointer" data-font="inter">Inter</button>
-            <button class="typo-btn font-btn px-2 py-1 text-[11px] rounded border border-[#222] text-[#666] bg-transparent hover:border-[#333] hover:text-[#ddd] cursor-pointer" data-font="lora">Lora</button>
-            <button class="typo-btn font-btn px-2 py-1 text-[11px] rounded border border-[#222] text-[#666] bg-transparent hover:border-[#333] hover:text-[#ddd] cursor-pointer" data-font="mono">Mono</button>
-            <button class="typo-btn font-btn px-2 py-1 text-[11px] rounded border border-[#222] text-[#666] bg-transparent hover:border-[#333] hover:text-[#ddd] cursor-pointer" data-font="system">Sistem</button>
-          </div>
-        </div>
-        <div class="typo-row flex items-center gap-3 mb-2">
-          <span class="typo-label w-16 text-[11px] text-[#555]">Boyut</span>
-          <div class="flex items-center gap-2">
-            <button class="typo-btn typo-minus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="size">A-</button>
-            <input type="range" class="typo-range w-24" id="typo-size" min="13" max="22" value="16" aria-label="Font boyutu" />
-            <button class="typo-btn typo-plus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="size">A+</button>
-            <span class="typo-val text-[11px] text-[#444] w-10" id="typo-size-val">16px</span>
-          </div>
-        </div>
-        <div class="typo-row flex items-center gap-3 mb-2">
-          <span class="typo-label w-16 text-[11px] text-[#555]">Satir</span>
-          <div class="flex items-center gap-2">
-            <button class="typo-btn typo-minus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="line">-</button>
-            <input type="range" class="typo-range w-24" id="typo-line" min="14" max="22" value="19" aria-label="Satir yuksekligi" />
-            <button class="typo-btn typo-plus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="line">+</button>
-            <span class="typo-val text-[11px] text-[#444] w-10" id="typo-line-val">1.9</span>
-          </div>
-        </div>
-        <div class="typo-row flex items-center gap-3 mb-2">
-          <span class="typo-label w-16 text-[11px] text-[#555]">Harf</span>
-          <div class="flex items-center gap-2">
-            <button class="typo-btn typo-minus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="letter">-</button>
-            <input type="range" class="typo-range w-24" id="typo-letter" min="-2" max="10" value="0" aria-label="Harf araligi" />
-            <button class="typo-btn typo-plus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="letter">+</button>
-            <span class="typo-val text-[11px] text-[#444] w-10" id="typo-letter-val">0px</span>
-          </div>
-        </div>
-        <div class="typo-row flex items-center gap-3">
-          <span class="typo-label w-16 text-[11px] text-[#555]">Genislik</span>
-          <div class="flex items-center gap-2">
-            <button class="typo-btn typo-minus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="width">-</button>
-            <input type="range" class="typo-range w-24" id="typo-width" min="400" max="900" step="20" value="640" aria-label="Icerik genisligi" />
-            <button class="typo-btn typo-plus px-1.5 py-0.5 text-[11px] rounded border border-[#222] text-[#666] bg-transparent cursor-pointer" data-target="width">+</button>
-            <span class="typo-val text-[11px] text-[#444] w-10" id="typo-width-val">640px</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-body flex">
-        <div class="reader-pane flex-1 px-6 py-5 overflow-y-auto max-h-[80vh]">
-          <h2 class="modal-title text-[20px] font-semibold text-[#ddd] leading-snug mb-4"></h2>
-          <section class="modal-content prose-custom text-[#bbb] text-[15px] leading-relaxed"></section>
-          <section class="suggestions-section mt-6 border-t border-[#1a1a1a] pt-4" hidden>
-            <div class="suggestions-heading flex items-center gap-1.5 text-[11px] text-[#555] uppercase tracking-widest mb-3">
-              <span class="suggestions-icon text-accent">&#10022;</span>
-              <span>Bunlari da okuyabilirsin</span>
-            </div>
-            <ol class="suggestions-list flex flex-col gap-1 list-none"></ol>
-          </section>
-        </div>
-        <aside class="notes-pane w-64 border-l border-[#1a1a1a] p-4 overflow-y-auto" hidden>
-          <div class="notes-section mb-4">
-            <p class="notes-label text-[11px] text-[#555] uppercase tracking-widest mb-2">Notlar</p>
-            <textarea class="notes-input w-full bg-[#111] border border-[#1a1a1a] rounded text-[#ddd] text-[13px] p-2 outline-none resize-none h-28 placeholder:text-[#444] focus:border-[#333]" placeholder="Bu makale hakkinda not al..."></textarea>
-            <button class="notes-save-btn mt-1.5 w-full py-1.5 text-[12px] text-accent border border-[#1a2a40] bg-[#0d1520] rounded cursor-pointer hover:bg-[#111f33]">Kaydet</button>
-          </div>
-          <div class="highlights-section">
-            <p class="notes-label text-[11px] text-[#555] uppercase tracking-widest mb-2">Vurgular</p>
-            <div class="highlight-colors flex gap-2 mb-2">
-              <button class="hl-btn hl-yellow w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#e8b840" title="Sari"></button>
-              <button class="hl-btn hl-green  w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#3ecf8e" title="Yesil"></button>
-              <button class="hl-btn hl-blue   w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#5b9cf6" title="Mavi"></button>
-              <button class="hl-btn hl-red    w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#e84444" title="Kirmizi"></button>
-            </div>
-            <p class="hl-hint text-[11px] text-[#444] mb-2">Metni secip renk tikla</p>
-            <div class="highlights-list flex flex-col gap-1"></div>
-          </div>
-        </aside>
-      </div>
-    </article>
-  </div>
-
-  <!-- AYARLAR PANELI � ustede profil karti -->
-  <div class="settings-panel fixed inset-0 z-50 flex items-center justify-center bg-black/60" hidden role="dialog" aria-modal="true" aria-label="Ayarlar">
-    <div class="settings-inner bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto">
-      <header class="settings-header flex items-center justify-between px-5 py-4 border-b border-[#1a1a1a] sticky top-0 bg-[#0a0a0a]">
-        <strong class="text-[14px] font-semibold text-[#ddd]">Ayarlar</strong>
-        <button class="icon-btn settings-close-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Kapat">&#10005;</button>
-      </header>
-      <div class="settings-body p-4 flex flex-col gap-5">
-
-        <!-- Profil Karti -->
-        <div class="flex items-center gap-4 p-4 bg-[#111] rounded-xl border border-[#1a1a1a]">
-          <div class="w-14 h-14 rounded-full bg-linear-to-br from-accent to-[#a78bfa] flex items-center justify-center text-xl font-bold text-white select-none shrink-0">N</div>
-          <div class="flex flex-col min-w-0">
-            <span class="text-[14px] font-semibold text-[#ddd]">NewRssFeed</span>
-            <span class="text-[12px] text-[#555] mt-0.5">Takip ettigin her sey, tek bir yerde.</span>
-            <div class="flex items-center gap-3 mt-2">
-              <span class="profile-feed-count text-[11px] text-[#666]">0 kaynak</span>
-              <span class="text-[#333] text-[10px]">&#183;</span>
-              <span class="profile-article-count text-[11px] text-[#666]">0 haber</span>
-              <span class="text-[#333] text-[10px]">&#183;</span>
-              <span class="profile-unread-count text-[11px] text-accent">0 okunmamis</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gorunum -->
-        <section class="settings-section">
-          <p class="settings-label text-[10px] text-[#444] uppercase tracking-widest mb-3">Gorunum</p>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Tema</span>
-            <div class="settings-seg flex rounded border border-[#1a1a1a] overflow-hidden" role="group" aria-label="Tema secimi">
-              <button class="seg-btn px-3 py-1 text-[12px] text-[#666] bg-transparent border-0 cursor-pointer hover:text-[#ddd]" data-setting="theme" data-value="dark">Koyu</button>
-              <button class="seg-btn px-3 py-1 text-[12px] text-[#666] bg-transparent border-0 cursor-pointer hover:text-[#ddd]" data-setting="theme" data-value="light">Acik</button>
-              <button class="seg-btn px-3 py-1 text-[12px] text-[#666] bg-transparent border-0 cursor-pointer hover:text-[#ddd]" data-setting="theme" data-value="system">Sistem</button>
-            </div>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Vurgu Rengi</span>
-            <div class="settings-accent-row flex gap-2">
-              <button class="accent-swatch swatch-blue w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#5b9cf6" title="Mavi"></button>
-              <button class="accent-swatch swatch-green w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#3ecf8e" title="Yesil"></button>
-              <button class="accent-swatch swatch-yellow w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#e8b840" title="Sari"></button>
-              <button class="accent-swatch swatch-red w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#e84444" title="Kirmizi"></button>
-              <button class="accent-swatch swatch-purple w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#a78bfa" title="Mor"></button>
-              <button class="accent-swatch swatch-orange w-5 h-5 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform" data-color="#f97316" title="Turuncu"></button>
-            </div>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Kompakt Mod</span>
-            <label class="settings-toggle relative inline-flex items-center cursor-pointer" aria-label="Kompakt mod">
-              <input type="checkbox" class="toggle-input sr-only" data-setting="compactMode" />
-              <span class="toggle-track w-9 h-5 bg-[#1a1a1a] rounded-full relative transition-colors"><span class="toggle-thumb absolute left-0.5 top-0.5 w-4 h-4 bg-[#444] rounded-full transition-transform"></span></span>
-            </label>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Gorselleri Goster</span>
-            <label class="settings-toggle relative inline-flex items-center cursor-pointer" aria-label="Gorselleri goster">
-              <input type="checkbox" class="toggle-input sr-only" data-setting="showImages" />
-              <span class="toggle-track w-9 h-5 bg-[#1a1a1a] rounded-full relative transition-colors"><span class="toggle-thumb absolute left-0.5 top-0.5 w-4 h-4 bg-[#444] rounded-full transition-transform"></span></span>
-            </label>
-          </div>
-        </section>
-
-        <!-- Davranis -->
-        <section class="settings-section">
-          <p class="settings-label text-[10px] text-[#444] uppercase tracking-widest mb-3">Davranis</p>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Acilinca Okundu Isaretle</span>
-            <label class="settings-toggle relative inline-flex items-center cursor-pointer" aria-label="Okundu isaretleme">
-              <input type="checkbox" class="toggle-input sr-only" data-setting="markReadOnOpen" />
-              <span class="toggle-track w-9 h-5 bg-[#1a1a1a] rounded-full relative transition-colors"><span class="toggle-thumb absolute left-0.5 top-0.5 w-4 h-4 bg-[#444] rounded-full transition-transform"></span></span>
-            </label>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Orijinali Yeni Sekmede Ac</span>
-            <label class="settings-toggle relative inline-flex items-center cursor-pointer" aria-label="Yeni sekmede ac">
-              <input type="checkbox" class="toggle-input sr-only" data-setting="openInNewTab" />
-              <span class="toggle-track w-9 h-5 bg-[#1a1a1a] rounded-full relative transition-colors"><span class="toggle-thumb absolute left-0.5 top-0.5 w-4 h-4 bg-[#444] rounded-full transition-transform"></span></span>
-            </label>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Otomatik Yenile</span>
-            <label class="settings-toggle relative inline-flex items-center cursor-pointer" aria-label="Otomatik yenile">
-              <input type="checkbox" class="toggle-input sr-only" data-setting="autoRefresh" />
-              <span class="toggle-track w-9 h-5 bg-[#1a1a1a] rounded-full relative transition-colors"><span class="toggle-thumb absolute left-0.5 top-0.5 w-4 h-4 bg-[#444] rounded-full transition-transform"></span></span>
-            </label>
-          </div>
-          <div class="settings-row settings-row-indent flex items-center justify-between py-2 border-b border-[#111] pl-4" id="refresh-interval-row">
-            <span class="settings-row-label text-[13px] text-[#888]">Yenileme Araligi</span>
-            <select class="settings-select bg-[#111] border border-[#222] rounded text-[#ddd] text-[12px] px-2 py-1 outline-none" data-setting="refreshInterval">
-              <option value="5">5 dakika</option>
-              <option value="10">10 dakika</option>
-              <option value="15">15 dakika</option>
-              <option value="30">30 dakika</option>
-              <option value="60">1 saat</option>
-            </select>
-          </div>
-        </section>
-
-        <!-- Veri -->
-        <section class="settings-section">
-          <p class="settings-label text-[10px] text-[#444] uppercase tracking-widest mb-3">Veri</p>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Feed Onbellegi</span>
-            <button class="settings-action-btn clear-cache-btn px-3 py-1 text-[12px] text-[#888] border border-[#222] rounded bg-transparent hover:text-[#ddd] hover:border-[#333] cursor-pointer">Temizle</button>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2 border-b border-[#111]">
-            <span class="settings-row-label text-[13px] text-[#888]">Okuma Gecmisi</span>
-            <button class="settings-action-btn clear-history-btn px-3 py-1 text-[12px] text-[#888] border border-[#222] rounded bg-transparent hover:text-[#ddd] hover:border-[#333] cursor-pointer">Temizle</button>
-          </div>
-          <div class="settings-row flex items-center justify-between py-2">
-            <span class="settings-row-label text-[13px] text-[#888]">Tum Verileri Sifirla</span>
-            <button class="settings-action-btn settings-danger-btn reset-all-btn px-3 py-1 text-[12px] text-[#e84444] border border-[#3a1a1a] rounded bg-transparent hover:bg-[#1a0808] cursor-pointer">Sifirla</button>
-          </div>
-        </section>
-
-        <!-- Hakkinda -->
-        <section class="settings-section">
-          <p class="settings-label text-[10px] text-[#444] uppercase tracking-widest mb-3">Hakkinda</p>
-          <div class="flex flex-col gap-1 text-center py-2">
-            <p class="text-[14px] font-semibold text-[#ddd]">NewRssFeed</p>
-            <p class="text-[12px] text-[#555]">Takip ettigin her sey, tek bir yerde.</p>
-            <a class="text-[12px] text-accent hover:text-accent-hover no-underline" href="https://github.com/korayozkan/NewRssFeed" target="_blank" rel="noopener noreferrer">GitHub &#8594;</a>
-          </div>
-        </section>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- GORSEL LIGHTBOX -->
-  <div class="lightbox fixed inset-0 z-200 bg-black/94 flex flex-col items-center justify-center" hidden aria-label="Gorsel buyutme" role="dialog">
-    <button class="lightbox-close absolute top-4 right-4 p-2 text-[#888] hover:text-[#ddd] bg-transparent border-0 cursor-pointer text-lg" aria-label="Kapat">&#10005;</button>
-    <img class="lightbox-img max-w-[90vw] max-h-[80vh] object-contain" src="" alt="" />
-    <p class="lightbox-caption mt-3 text-[12px] text-[#555]"></p>
-  </div>
-
-  <!-- ANALITIK PANELI -->
-  <div class="analytics-panel fixed inset-0 z-50 flex items-end justify-center bg-black/60" hidden>
-    <div class="analytics-inner bg-[#0a0a0a] border border-[#1a1a1a] rounded-t-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
-      <header class="analytics-header flex items-center justify-between px-5 py-4 border-b border-[#1a1a1a] sticky top-0 bg-[#0a0a0a]">
-        <strong class="text-[14px] font-semibold text-[#ddd]">Trend ve Analitik</strong>
-        <button class="icon-btn analytics-close-btn p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm">&#10005;</button>
-      </header>
-      <div class="analytics-body p-4 flex flex-col gap-5">
-        <section class="analytics-section">
-          <p class="analytics-label text-[11px] text-[#555] uppercase tracking-widest mb-3">Kaynak Aktivitesi</p>
-          <div class="source-bars flex flex-col gap-2"></div>
-        </section>
-        <section class="analytics-section">
-          <p class="analytics-label text-[11px] text-[#555] uppercase tracking-widest mb-3">En Cok Okunan</p>
-          <ol class="top-articles list-none flex flex-col gap-1"></ol>
-        </section>
-        <section class="analytics-section">
-          <p class="analytics-label text-[11px] text-[#555] uppercase tracking-widest mb-3">Gundem Kelimeleri</p>
-          <div class="word-cloud flex flex-wrap gap-1.5"></div>
-        </section>
-        <section class="analytics-section">
-          <p class="analytics-label text-[11px] text-[#555] uppercase tracking-widest mb-3">Okuma Istatistikleri</p>
-          <div class="read-stats flex flex-col gap-2"></div>
-        </section>
-      </div>
-    </div>
-  </div>
-
-  <!-- REELS VIEW -->
-  <div class="reels-view fixed inset-0 z-40 bg-black flex flex-col" hidden aria-label="Reels">
-    <div class="reels-topbar flex items-center gap-2 px-4 h-13 border-b border-[#1a1a1a] bg-[#0a0a0a] shrink-0">
-      <span class="reels-title text-[14px] font-semibold text-[#ddd]">Reels</span>
-      <span class="reels-subtitle text-[12px] text-[#555]">Haber Videolari</span>
-      <button class="reels-close-btn ml-auto p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer" aria-label="Kapat" title="Kapat">&#10005;</button>
-    </div>
-    <div class="reels-empty flex flex-col items-center justify-center flex-1 text-center px-8" hidden>
-      <div class="reels-empty-icon text-5xl text-[#333] mb-4">&#9654;</div>
-      <p class="reels-empty-title text-[15px] font-medium text-[#666] mb-1">Video bulunamadi</p>
-      <p class="reels-empty-desc text-[13px] text-[#444]">YouTube veya video iceren haber kaynaklari ekleyerek baslayin.</p>
-    </div>
-    <div class="reels-loading flex items-center justify-center flex-1" hidden>
-      <span class="spinner inline-block w-5 h-5 border-2 border-[#1e1e1e] border-t-[#555] rounded-full animate-spin" role="status" aria-label="Yukleniyor"></span>
-    </div>
-    <div class="reels-container flex-1 overflow-y-scroll scrollbar-none snap-y-mandatory" role="list" aria-label="Video reels"></div>
-  </div>
-
-  <!-- MOBIL TAB BAR -->
-  <nav class="mobile-tabs fixed bottom-0 left-0 right-0 z-50 flex border-t border-[#1a1a1a] bg-[#0a0a0a] md:hidden" aria-label="Ana navigasyon">
-    <button class="tab-btn active flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-accent bg-transparent border-0 cursor-pointer" data-tab="home" aria-label="Anasayfa">
-      <svg class="tab-icon w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <span class="tab-label text-[10px]">Anasayfa</span>
-    </button>
-    <button class="tab-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[#555] bg-transparent border-0 cursor-pointer hover:text-[#ddd]" data-tab="discover" aria-label="Kesfet">
-      <svg class="tab-icon w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <span class="tab-label text-[10px]">Kesfet</span>
-    </button>
-    <button class="tab-btn flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[#555] bg-transparent border-0 cursor-pointer hover:text-[#ddd]" data-tab="profile" aria-label="Profil">
-      <svg class="tab-icon w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span class="tab-label text-[10px]">Profil</span>
-    </button>
-  </nav>
-
-  <!-- MOBIL KESFET VIEW -->
-  <div class="mobile-discover-view fixed inset-0 z-40 bg-black flex flex-col md:hidden" hidden>
-    <header class="mobile-discover-header flex items-center justify-between px-4 h-13 border-b border-[#1a1a1a] bg-[#0a0a0a]">
-      <strong class="text-[14px] font-semibold text-[#ddd]">Kesfet</strong>
-      <div class="flex items-center gap-1">
-        <div class="flex items-center gap-1 bg-[#111] border border-[#1a1a1a] rounded-md px-2 py-1">
-          <span class="text-[#555] text-sm select-none" aria-hidden="true">&#9906;</span>
-          <input type="search" name="search-discover" class="search-input-discover bg-transparent border-0 text-[#ddd] text-[13px] outline-none w-28 placeholder:text-[#444]" placeholder="Ara..." aria-label="Haberlerde ara" />
-        </div>
-        <button class="icon-btn refresh-btn-discover p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Yenile" title="Yenile">&#8635;</button>
-      </div>
-    </header>
-    <nav class="discover-filter-bar flex items-center gap-2 px-4 py-2 border-b border-[#1a1a1a] overflow-x-auto scrollbar-none" aria-label="Filtreler">
-      <button class="discover-filter-chip active px-3 py-1 rounded-full text-xs border border-accent text-accent bg-[#0d1520] whitespace-nowrap" data-filter="all">Tumu</button>
-      <button class="discover-filter-chip px-3 py-1 rounded-full text-xs border border-[#222] text-[#888] hover:border-[#444] hover:text-[#ddd] whitespace-nowrap" data-filter="unread">Okunmamis</button>
-      <button class="discover-filter-chip px-3 py-1 rounded-full text-xs border border-[#222] text-[#888] hover:border-[#444] hover:text-[#ddd] whitespace-nowrap" data-filter="starred">Yildizli</button>
-    </nav>
-    <div class="discover-body flex-1 overflow-y-auto pb-20">
-      <ol class="discover-articles list-none" aria-live="polite" aria-label="Haber listesi"></ol>
-      <section class="discover-empty flex flex-col items-center py-16 text-center" hidden>
-        <p class="text-[14px] text-[#666]">Henuz haber yok</p>
-        <p class="text-[13px] text-[#444] mt-1">Profil sekmesinden kaynak ekleyerek baslayin.</p>
-      </section>
-      <section class="discover-loading flex flex-col items-center gap-3 py-16" hidden>
-        <span class="spinner inline-block w-5 h-5 border-2 border-[#1e1e1e] border-t-[#555] rounded-full animate-spin" role="status" aria-label="Yukleniyor"></span>
-        <p class="text-[13px] text-[#444]">Yukleniyor...</p>
-      </section>
-    </div>
-  </div>
-
-  <!-- MOBIL PROFIL VIEW -->
-  <div class="mobile-profile-view fixed inset-0 z-40 bg-black flex flex-col md:hidden" hidden>
-    <header class="mobile-profile-header flex items-center justify-between px-4 h-13 border-b border-[#1a1a1a] bg-[#0a0a0a]">
-      <strong class="logo-text text-sm font-semibold">Profil</strong>
-      <button class="icon-btn settings-btn-profile p-2 rounded-md bg-transparent border-0 text-[#888] hover:text-[#ddd] hover:bg-[#111] cursor-pointer text-sm" aria-label="Ayarlar" title="Ayarlar">&#9881;</button>
-    </header>
-    <div class="mobile-profile-body flex-1 overflow-y-auto p-4 pb-20 flex flex-col gap-5">
-
-      <!-- Profil ozet karti -->
-      <div class="flex items-center gap-3 p-3 bg-[#111] rounded-xl border border-[#1a1a1a]">
-        <div class="w-12 h-12 rounded-full bg-linear-to-br from-accent to-[#a78bfa] flex items-center justify-center text-lg font-bold text-white shrink-0">N</div>
-        <div class="flex flex-col min-w-0">
-          <span class="text-[13px] font-semibold text-[#ddd]">NewRssFeed</span>
-          <div class="flex items-center gap-2 mt-0.5">
-            <span class="profile-feed-count text-[11px] text-[#666]">0 kaynak</span>
-            <span class="text-[#333]">&#183;</span>
-            <span class="profile-unread-count text-[11px] text-accent">0 okunmamis</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Kaynak Ekle -->
-      <section class="mobile-profile-section">
-        <p class="mobile-section-label text-[10px] text-[#444] uppercase tracking-widest mb-2">Kaynak Ekle</p>
-        <div class="add-feed-input-wrap mobile-add-wrap flex gap-1.5 mb-2">
-          <input type="url" name="feed-url-mobile" class="feed-input feed-input-mobile flex-1 bg-[#111] border border-[#222] rounded-md text-[#ddd] text-[13px] px-2 py-1.5 outline-none focus:border-[#333]" placeholder="URL yapistir..." aria-label="RSS feed URL'si" />
-          <button class="add-btn add-btn-mobile flex items-center justify-center w-8 h-8 bg-[#111] border border-[#222] rounded-md text-[#888] hover:bg-[#1a1a1a] hover:text-white cursor-pointer text-lg" aria-label="Feed ekle">+</button>
-        </div>
-        <div class="quick-add-grid mobile-quick-grid grid grid-cols-4 gap-1">
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="youtube" title="YouTube">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8z"/><polygon fill="#fff" points="9.6,15.6 15.8,12 9.6,8.4"/></svg>
-            YouTube
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="reddit" title="Reddit">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#FF4500"/><path fill="#fff" d="M20 12a2 2 0 0 0-2-2 2 2 0 0 0-1.3.5c-1.3-.9-3-.1-3.1 1.5l-2.2-.1c-.1-.9-.8-1.5-1.7-1.4-.5 0-.9.2-1.2.5A2 2 0 0 0 4 12a2 2 0 0 0 1 1.7c0 .1 0 .3.1.4 0 2 2.2 3.6 5 3.6s5-1.6 5-3.6c0-.1 0-.3.1-.4A2 2 0 0 0 20 12zm-9 3.5c-.8 0-1.5-.6-1.5-1.3s.7-1.3 1.5-1.3 1.5.6 1.5 1.3-.7 1.3-1.5 1.3zm4 0c-.8 0-1.5-.6-1.5-1.3s.7-1.3 1.5-1.3 1.5.6 1.5 1.3-.7 1.3-1.5 1.3z"/></svg>
-            Reddit
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="github" title="GitHub">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 5.1 18 5.4 18 5.4c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z"/></svg>
-            GitHub
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="hn" title="Hacker News">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="#FF6600"/><path fill="#fff" d="M7 5l5 8.5L17 5h-2.2L12 9.8 9.2 5H7zm4 10.2V19h2v-3.8L17 7.4h-2L12 11.8 9 7.4H7l4 7.8z"/></svg>
-            HN
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="devto" title="Dev.to">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.4 10.2c-.2-.5-.6-.7-1.2-.7H5v5h1.2c.6 0 1-.2 1.2-.7.1-.3.2-.9.2-1.8s-.1-1.5-.2-1.8zM0 3.7h24v16.6H0V3.7zm8.9 4.7c-.4-1-1.2-1.5-2.3-1.5H3v9.2h3.6c1.1 0 1.9-.5 2.3-1.5.2-.5.3-1.3.3-2.6s-.1-2.1-.3-2.6zm5.7-.1h-4v9.2h4v-1.5h-2.3v-2.4h2v-1.5h-2V8.8h2.3V8.3zm6.2 0h-1.7l-1.1 5.5-1.1-5.5h-1.7l1.9 7.7h1.8l1.9-7.7z"/></svg>
-            Dev.to
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="substack" title="Substack">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF6719" d="M22.5 5.4H1.5V8h21V5.4zM1.5 10.8V24l10.5-5.9 10.5 5.9V10.8H1.5zM22.5 0h-21v2.6h21V0z"/></svg>
-            Substack
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="medium" title="Medium">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 12c0 3-2.4 5.5-5.5 5.5S2.5 15 2.5 12 4.9 6.5 8 6.5 13.5 9 13.5 12zm7.3 0c0 2.8-1.2 5.1-2.7 5.1S15.4 14.8 15.4 12s1.2-5.1 2.7-5.1S20.8 9.2 20.8 12zm2.2 0c0 2.5-.4 4.6-1 4.6s-1-2.1-1-4.6.4-4.6 1-4.6 1 2.1 1 4.6z"/></svg>
-            Medium
-          </button>
-          <button class="quick-add-btn flex flex-col items-center gap-0.5 p-1.5 rounded-md bg-[#111] border border-[#1a1a1a] text-[#666] text-[10px] hover:bg-[#1a1a1a] hover:text-[#ddd] cursor-pointer" data-platform="mastodon" title="Mastodon">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true"><path fill="#6364FF" d="M23.3 7.7c-.4-2.8-2.7-5-5.5-5.5C17.3 2 15.3 2 12 2c-3.3 0-5.3 0-5.8.2C3.4 2.7 1 4.9.6 7.7.4 9 .4 10.4.5 11.7c.2 1.9.3 3.8 1 5.6.6 1.5 1.6 2.7 3 3.5 1.5.8 3.2 1.1 5 1.1.3-1.3.3-1.5 0-2.8-1.4-.1-2.7-.4-3.6-1.2-.7-.6-1.1-1.4-1.3-2.2 1.2.4 2.4.6 3.6.7 1.5.2 3.1.2 4.6.1 1.6 0 3.1-.2 4.6-.5 1.1-.2 2.3-.6 3.3-1.1 0 .9-.1 1.7-.4 2.5-.2.5-.6 1-1 1.4-.9.8-2.2 1.2-3.6 1.3.3 1.3.3 1.5 0 2.8 1.7 0 3.4-.3 4.9-1.1 1.4-.8 2.4-2 3-3.5.7-1.8.8-3.7 1-5.6.1-1.3.1-2.7-.1-4z"/></svg>
-            Mastodon
-          </button>
-        </div>
-      </section>
-
-      <!-- Kaynaklar listesi -->
-      <section class="mobile-profile-section">
-        <p class="mobile-section-label text-[10px] text-[#444] uppercase tracking-widest mb-2">Kaynaklar</p>
-        <nav class="feed-list-mobile" aria-label="Feed listesi"></nav>
-      </section>
-
-      <!-- Ice/Disa Aktar -->
-      <section class="mobile-profile-section flex flex-col gap-1.5">
-        <div class="flex gap-1.5">
-          <label class="mobile-io-btn flex-1 text-center py-2 text-[13px] text-[#666] border border-[#1a1a1a] rounded-lg hover:text-[#ddd] hover:bg-[#111] cursor-pointer">
-            &#8595; Ice Aktar
-            <input type="file" class="import-input-mobile hidden" accept=".opml,.xml,.json" aria-label="Feed listesi ice aktar" />
-          </label>
-          <button class="mobile-io-btn export-btn-mobile flex-1 py-2 text-[13px] text-[#666] border border-[#1a1a1a] rounded-lg bg-transparent hover:text-[#ddd] hover:bg-[#111] cursor-pointer">&#8593; Disa Aktar</button>
-        </div>
-      </section>
-
-    </div>
-  </div>
-
-  <!-- TOAST -->
+  <!-- Toast -->
   <output class="toast fixed bottom-20 left-1/2 -translate-x-1/2 z-100 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-[#ddd] text-sm opacity-0 transition-opacity pointer-events-none" aria-live="polite"></output>
 
-  <!-- Moduller -->
+  <!-- ── SCRIPTS ── -->
+  <script src="env.js"></script>
   <script src="js/config.js"></script>
-  <!-- Supabase JS SDK (UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- Supabase auth & DB modülleri (config.js'den sonra, state.js'den önce olması gereken
-       sabitler config.js'de tanımlı olduğundan bu sıra uygundur) -->
   <script src="js/supabase.js"></script>
   <script src="js/db.js"></script>
   <script src="js/state.js"></script>
@@ -546,8 +63,16 @@
   <script src="js/events.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/tabs.js"></script>
+
+  <!-- Component HTML şablonları (main.js'den önce yüklenmeli) -->
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/topbar.js"></script>
+  <script src="js/components/reels.js"></script>
+  <script src="js/components/mobile.js"></script>
+  <script src="js/components/modals.js"></script>
+  <!-- Component loader — tüm parçaları DOM'a monte eder -->
+  <script src="js/components/index.js"></script>
+
   <script src="js/main.js"></script>
 </body>
 </html>
-
-

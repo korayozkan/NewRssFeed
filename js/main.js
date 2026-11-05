@@ -1,47 +1,74 @@
 'use strict';
 
-// ── BASLAMA ────────────────────────────────────────────────────────────────
-async function init() {
-  // Supabase başlat
-  var supabaseClient = initSupabase();
+// ─────────────────────────────────────────────────────────────────────────────
+// Yardımcı — tüm avatar alanlarını (sidebar, mobil tab, ayarlar paneli) doldurur
+// ─────────────────────────────────────────────────────────────────────────────
+function fillAvatar(imgId, letterId, url, letter) {
+  const img = document.getElementById(imgId);
+  const ltr = document.getElementById(letterId);
+  if (url && img) {
+    img.src = url;
+    img.classList.remove('hidden');
+    if (ltr) ltr.style.display = 'none';
+  } else if (ltr) {
+    ltr.textContent = letter;
+  }
+}
 
-  // Supabase yapılandırılmışsa oturum kontrolü yap
-  if (supabaseClient) {
+function fillAllAvatars(user) {
+  const meta        = user.user_metadata || {};
+  const displayName = meta.full_name || meta.name || user.email || 'Kullanıcı';
+  const avatarUrl   = meta.avatar_url || meta.picture || '';
+  const letter      = displayName.charAt(0).toUpperCase();
+
+  fillAvatar('mobile-avatar-img',   'mobile-avatar-letter',   avatarUrl, letter);
+  fillAvatar('sidebar-avatar-img',  'sidebar-avatar-letter',  avatarUrl, letter);
+  fillAvatar('settings-avatar-img', 'settings-avatar-letter', avatarUrl, letter);
+
+  const nameEl  = document.getElementById('settings-display-name');
+  const emailEl = document.getElementById('settings-user-email');
+  if (nameEl)  nameEl.textContent  = displayName;
+  if (emailEl) emailEl.textContent = user.email || '';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BAŞLANGIC
+// ─────────────────────────────────────────────────────────────────────────────
+async function init() {
+  const sb = initSupabase();
+
+  if (sb) {
     try {
-      var sessionResult = await getSession();
-      var session = sessionResult.data && sessionResult.data.session;
+      const { data } = await getSession();
+      const session  = data?.session;
+
       if (!session) {
-        // Oturum yok — login sayfasına yönlendir
         window.location.href = 'login.html';
         return;
       }
-      // Kullanıcı bilgisini state'e kaydet
-      state.user = {
-        id:    session.user.id,
-        email: session.user.email,
-      };
+
+      state.user = { id: session.user.id, email: session.user.email };
+      fillAllAvatars(session.user);
+
     } catch (err) {
-      console.error('[main] Oturum kontrolü hatası:', err);
-      // Hata durumunda localStorage ile devam et (graceful degradation)
+      console.error('[main] Oturum hatası:', err);
     }
   }
 
   loadState();
 
-  // Supabase'den veriyi merge et (oturum açıksa)
-  if (state.user && state.user.id) {
-    try {
-      await loadStateFromSupabase(state.user.id);
-    } catch (_) {}
+  // Supabase verisi ile localStorage'ı birleştir
+  if (state.user?.id) {
+    try { await loadStateFromSupabase(state.user.id); } catch (_) {}
   }
 
-  // Eski kaldırılmış feed'leri temizle
-  state.feeds    = state.feeds.filter(function(f) { return f.id !== 'nasa'; });
-  state.articles = state.articles.filter(function(a) { return a.feedId !== 'nasa'; });
+  // Eski "nasa" feed kalıntılarını temizle
+  state.feeds    = state.feeds.filter(f => f.id !== 'nasa');
+  state.articles = state.articles.filter(a => a.feedId !== 'nasa');
 
   // İlk çalıştırmada varsayılan kaynakları yükle
   if (state.feeds.length === 0) {
-    state.feeds = DEFAULT_FEEDS.map(function(f) { return Object.assign({}, f); });
+    state.feeds = DEFAULT_FEEDS.map(f => ({ ...f }));
   }
 
   bindEvents();
@@ -53,30 +80,6 @@ async function init() {
   renderFeedList();
   renderSmartTags();
   updateProfileCard();
-
-  // Sidebar footer'a kullanıcı email'ini göster
-  if (state.user && state.user.email) {
-    var footer = document.querySelector('.sidebar footer');
-    if (footer) {
-      var emailEl = document.createElement('div');
-      emailEl.className = 'px-2 py-1 text-[11px] text-[#444] truncate';
-      emailEl.title = state.user.email;
-      emailEl.textContent = state.user.email;
-      footer.insertBefore(emailEl, footer.firstChild);
-    }
-    // Çıkış yap butonu ekle
-    var settingsBtn = document.querySelector('.settings-btn');
-    if (settingsBtn) {
-      var signOutBtn = document.createElement('button');
-      signOutBtn.className = 'w-full flex items-center gap-2 text-left text-[12px] text-[#666] hover:text-[#e84444] py-1.5 px-2 rounded bg-transparent border-0 cursor-pointer hover:bg-[#111] mt-1';
-      signOutBtn.textContent = 'Çıkış Yap';
-      signOutBtn.addEventListener('click', async function() {
-        await signOut();
-        window.location.href = 'login.html';
-      });
-      settingsBtn.parentNode.insertBefore(signOutBtn, settingsBtn.nextSibling);
-    }
-  }
 
   // Başlangıç görünümünü belirle
   if (state.activeFeedId === 'home') {
@@ -95,12 +98,15 @@ async function init() {
   refreshAll();
 }
 
-// ── SIDEBAR NAVIGASYON LINKLERİ ────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// SIDEBAR NAVİGASYON
+// ─────────────────────────────────────────────────────────────────────────────
 function bindSidebarNavEvents() {
-  qsa('.sidebar [data-feedid]').forEach(function(el) {
-    el.addEventListener('click', function() {
-      var fid = el.dataset.feedid;
+  qsa('.sidebar [data-feedid]').forEach(el => {
+    el.addEventListener('click', () => {
+      const fid = el.dataset.feedid;
       state.activeFeedId = fid;
+
       if (fid === 'home') {
         showHomepage();
         renderHomepage();
@@ -115,18 +121,14 @@ function bindSidebarNavEvents() {
         updatePageTitle();
         renderArticles();
       }
+
       renderFeedList();
-      closeSidebar();
     });
-    el.addEventListener('keydown', function(e) {
+
+    el.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
     });
   });
-
-  var sidebarProfileBtn = qs('.sidebar-profile-btn');
-  if (sidebarProfileBtn) {
-    sidebarProfileBtn.addEventListener('click', openSettings);
-  }
 }
 
 document.addEventListener('DOMContentLoaded', init);

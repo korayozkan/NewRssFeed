@@ -166,8 +166,8 @@ function renderSuggestions(aid) {
 
   list.innerHTML = sugg.map(function(a) {
     const thumb = a.image
-      ? '<div class="w-14 h-10 bg-cover bg-center rounded flex-shrink-0 bg-[#111]" style="background-image:url(' + escHtml(a.image) + ')"></div>'
-      : '<div class="w-14 h-10 bg-[#1a1a1a] rounded flex items-center justify-center text-sm text-[#555] flex-shrink-0">' + escHtml(a.feedName.charAt(0)) + '</div>';
+      ? '<div class="w-14 h-10 bg-cover bg-center rounded shrink-0 bg-[#111]" style="background-image:url(' + escHtml(a.image) + ')"></div>'
+      : '<div class="w-14 h-10 bg-[#1a1a1a] rounded flex items-center justify-center text-sm text-[#555] shrink-0">' + escHtml(a.feedName.charAt(0)) + '</div>';
     return '<li class="sugg-card" data-id="' + escHtml(a.id) + '" tabindex="0" role="button">' +
       thumb +
       '<div class="flex flex-col min-w-0">' +
@@ -211,27 +211,28 @@ function renderSmartTags() {
 
 // ── FEED LİSTESİ ───────────────────────────────────────────────────────────
 function renderFeedList() {
-  // Masaüstü sidebar listesi
+  // Masaustu sidebar — sadece kaynak listesi (navigasyon linkleri HTML'de sabit)
   const container = qs('.feed-list');
   const allUnread = state.articles.filter(function(a) { return !a.read; }).length;
 
-  let html = '<span class="block text-[10px] text-[#444] uppercase tracking-widest px-2 py-1">KAYNAKLAR</span>';
+  // Sidebar unread badge guncelle
+  var badge = qs('.sidebar-unread-badge');
+  if (badge) {
+    badge.hidden = allUnread === 0;
+    badge.textContent = allUnread > 0 ? allUnread : '';
+  }
 
-  html += '<div class="feed-item' + (state.activeFeedId === 'home' ? ' active' : '') +
-    '" data-feedid="home" role="button" tabindex="0" aria-label="Anasayfa">' +
-    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">⌂</span>' +
-    '<span class="flex-1 text-[13px] truncate">Anasayfa</span></div>';
+  // Sabit nav item'larinin aktif stilini guncelle
+  qsa('[data-feedid]').forEach(function(el) {
+    if (!el.closest('.feed-list') && !el.closest('.feed-list-mobile')) {
+      el.classList.toggle('active', el.dataset.feedid === state.activeFeedId);
+    }
+  });
 
-  html += '<div class="feed-item' + (state.activeFeedId === 'reels' ? ' active' : '') +
-    '" data-feedid="reels" role="button" tabindex="0" aria-label="Reels - Video haberler">' +
-    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]" style="font-size:13px">▶</span>' +
-    '<span class="flex-1 text-[13px] truncate">Reels</span></div>';
+  // Profil kart istatistiklerini de guncelle
+  if (typeof updateProfileCard === 'function') updateProfileCard();
 
-  html += '<div class="feed-item' + (state.activeFeedId === 'all' ? ' active' : '') +
-    '" data-feedid="all" role="button" tabindex="0" aria-label="Tüm haberler">' +
-    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">☰</span>' +
-    '<span class="flex-1 text-[13px] truncate">Tüm Haberler</span>' +
-    (allUnread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + allUnread + '</span>' : '') + '</div>';
+  let html = '';
 
   state.feeds.forEach(function(feed) {
     const unread = state.articles.filter(function(a) { return a.feedId === feed.id && !a.read; }).length;
@@ -243,7 +244,7 @@ function renderFeedList() {
       '" data-feedid="' + escHtml(feed.id) + '" role="button" tabindex="0" aria-label="' + escHtml(feed.name) + '">' +
       fav +
       '<span class="flex-1 text-[13px] truncate">' + escHtml(feed.name) + '</span>' +
-      (unread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + unread + '</span>' : '') +
+      (unread > 0 ? '<span class="ml-auto text-[11px] text-accent bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + unread + '</span>' : '') +
       '<button class="feed-remove opacity-0 group-hover:opacity-100 ml-auto p-0.5 text-[#555] hover:text-[#e84444] bg-transparent border-0 cursor-pointer text-xs" data-removeid="' + escHtml(feed.id) + '" aria-label="Sil" title="Kaynağı sil">✕</button></div>';
   });
 
@@ -253,15 +254,22 @@ function renderFeedList() {
     el.addEventListener('click', function(e) {
       if (e.target.closest('.feed-remove')) return;
       state.activeFeedId = el.dataset.feedid;
-      if (state.activeFeedId === 'home') { showHomepage(); renderHomepage(); }
+      if (state.activeFeedId === 'home') {
+        showHomepage();
+        setTimeout(function() { renderHomepage(); }, 0);
+      }
       else if (state.activeFeedId === 'reels') {
         hideHomepage();
-        hideReels();  // önce gizleyip yeniden aç (temiz render)
+        hideReels();
         showReels();
-        renderReels();
+        setTimeout(function() { renderReels(); }, 0);
         qs('.page-title').textContent = 'Reels';
       }
-      else { hideHomepage(); updatePageTitle(); renderArticles(); }
+      else {
+        hideHomepage();
+        updatePageTitle();
+        setTimeout(function() { renderArticles(); }, 0);
+      }
       renderFeedList();
       closeSidebar();
     });
@@ -318,7 +326,7 @@ function renderArticles() {
 
 function articleCardHtml(a, isGrid) {
   const thumb = a.image
-    ? '<img class="article-thumb w-20 h-16 object-cover rounded flex-shrink-0" src="' + escHtml(a.image) + '" alt="" loading="lazy" onerror="this.remove()">'
+    ? '<img class="article-thumb w-20 h-16 object-cover rounded shrink-0" src="' + escHtml(a.image) + '" alt="" loading="lazy" onerror="this.remove()">'
     : '';
   const tagsHtml = a.tags && a.tags.length
     ? '<div class="flex flex-wrap gap-1 mt-1">' +
@@ -328,7 +336,7 @@ function articleCardHtml(a, isGrid) {
 
   return '<li class="article-card' + (a.read ? ' read' : '') + '"' +
     ' data-id="' + escHtml(a.id) + '" tabindex="0" role="button" aria-label="' + escHtml(a.title) + '">' +
-    '<span class="absolute left-1 top-4 w-1.5 h-1.5 rounded-full bg-[#5b9cf6]' + (a.read ? ' hidden' : '') + '" aria-hidden="true"></span>' +
+    '<span class="absolute left-1 top-4 w-1.5 h-1.5 rounded-full bg-accent' + (a.read ? ' hidden' : '') + '" aria-hidden="true"></span>' +
     (isGrid && a.image ? thumb : '') +
     '<div class="flex-1 min-w-0">' +
       '<div class="flex items-center gap-1.5 mb-1">' +
@@ -341,8 +349,8 @@ function articleCardHtml(a, isGrid) {
       tagsHtml +
     '</div>' +
     (!isGrid && a.image ? thumb : '') +
-    '<div class="flex-shrink-0 flex flex-col items-center gap-1">' +
-      '<button class="article-star-btn p-1 text-[#444] hover:text-[#e8b840] bg-transparent border-0 cursor-pointer text-base' + (a.starred ? ' starred' : '') + '"' +
+    '<div class="shrink-0 flex flex-col items-center gap-1">' +
+      '<button class="article-star-btn p-1 text-[#444] hover:text-star bg-transparent border-0 cursor-pointer text-base' + (a.starred ? ' starred' : '') + '"' +
         ' data-id="' + escHtml(a.id) + '" title="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '">' +
         (a.starred ? '★' : '☆') +
       '</button>' +
@@ -425,7 +433,7 @@ function renderHomepage() {
 
       // ── Üst: kaynak bilgisi ──
       '<header class="flex items-center gap-2 p-3">' +
-        '<div class="relative w-8 h-8 flex-shrink-0">' +
+        '<div class="relative w-8 h-8 shrink-0">' +
           (a.favicon
             ? '<img class="post-avatar-img w-8 h-8 rounded-full object-cover" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">'
             : '') +
@@ -435,7 +443,7 @@ function renderHomepage() {
           '<span class="text-[13px] font-medium text-[#ddd] truncate">' + escHtml(a.feedName) + '</span>' +
           '<time class="text-[11px] text-[#555]">' + formatDate(a.date) + '</time>' +
         '</div>' +
-        '<button class="post-star-btn ml-auto p-1 text-[#444] hover:text-[#e8b840] bg-transparent border-0 cursor-pointer text-base' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '" title="Yıldız">' +
+        '<button class="post-star-btn ml-auto p-1 text-[#444] hover:text-star bg-transparent border-0 cursor-pointer text-base' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '" title="Yıldız">' +
           (a.starred ? '★' : '☆') +
         '</button>' +
       '</header>' +
@@ -533,14 +541,14 @@ function renderAnalytics() {
       const pct = Math.round((feedCounts[name] / maxCount) * 100);
       barsHtml += '<div class="flex flex-col gap-1">' +
         '<div class="flex items-center justify-between text-[11px]"><span class="text-[#888] truncate">' + escHtml(name) + '</span><span class="text-[#555] ml-2">' + feedCounts[name] + '</span></div>' +
-        '<div class="w-full h-1.5 bg-[#111] rounded-full overflow-hidden"><div class="h-full bg-[#5b9cf6] rounded-full" style="width:' + pct + '%"></div></div></div>';
+        '<div class="w-full h-1.5 bg-[#111] rounded-full overflow-hidden"><div class="h-full bg-accent rounded-full" style="width:' + pct + '%"></div></div></div>';
     });
   qs('.source-bars', panel).innerHTML = barsHtml || '<p style="font-size:11px;color:#333">Veri yok</p>';
 
   const topList = state.articles.filter(function(a) { return a.read; }).slice(0, 5);
   qs('.top-articles', panel).innerHTML = topList.map(function(a, i) {
     return '<li class="flex items-start gap-2 py-1">' +
-      '<span class="text-[11px] text-[#555] w-4 flex-shrink-0">' + (i + 1) + '.</span>' +
+      '<span class="text-[11px] text-[#555] w-4 shrink-0">' + (i + 1) + '.</span>' +
       '<span class="text-[12px] text-[#888] leading-snug">' + escHtml(a.title) + '</span></li>';
   }).join('') || '<p style="font-size:11px;color:#333">Henüz okunmuş makale yok</p>';
 
@@ -558,8 +566,9 @@ function renderAnalytics() {
   const maxW     = wordFreq[topWords[0]] || 1;
   qs('.word-cloud', panel).innerHTML = topWords.map(function(w) {
     const isBig = wordFreq[w] >= maxW * 0.5;
-    return '<span class="word-item px-2 py-0.5 rounded-full text-[11px] bg-[#111] border border-[#1a1a1a] text-[#666] hover:border-[#2a2a2a] hover:text-[#ddd] cursor-pointer' + (isBig ? ' text-[13px] font-medium text-[#888]' : '') +
-      '" data-word="' + escHtml(w) + '">' + escHtml(w) + '</span>';
+    const sizeClass = isBig ? 'text-[13px] font-medium text-[#888]' : 'text-[11px] text-[#666]';
+    return '<span class="word-item px-2 py-0.5 rounded-full bg-[#111] border border-[#1a1a1a] hover:border-[#2a2a2a] hover:text-[#ddd] cursor-pointer ' + sizeClass + '"' +
+      ' data-word="' + escHtml(w) + '">' + escHtml(w) + '</span>';
   }).join('') || '<p style="font-size:11px;color:#333">Veri yok</p>';
 
   qsa('.word-item', panel).forEach(function(el) {
@@ -713,14 +722,14 @@ function renderReelsEmpty(emptyEl) {
         suggested.map(function(ch) {
           var color = catColors[ch.category] || '#5b9cf6';
           return '<button class="reels-suggest-card flex items-center gap-2 p-2 rounded-lg bg-[#111] border border-[#1a1a1a] cursor-pointer hover:border-[#2a2a2a] w-full" data-url="' + escHtml(ch.url) + '" aria-label="' + escHtml(ch.name) + ' ekle">' +
-            '<div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 border" style="background:' + color + '22;border-color:' + color + '44">' +
+            '<div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border" style="background:' + color + '22;border-color:' + color + '44">' +
               '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="' + color + '" aria-hidden="true"><path d="M6 3l12 9-12 9V3z"/></svg>' +
             '</div>' +
             '<div class="flex flex-col min-w-0 text-left">' +
               '<span class="text-[12px] font-medium text-[#ddd] truncate">' + escHtml(ch.name) + '</span>' +
               '<span class="text-[10px]" style="color:' + color + '">' + escHtml(ch.category) + '</span>' +
             '</div>' +
-            '<span class="ml-auto text-[16px] text-[#555] flex-shrink-0" aria-hidden="true">+</span>' +
+            '<span class="ml-auto text-[16px] text-[#555] shrink-0" aria-hidden="true">+</span>' +
           '</button>';
         }).join('') +
       '</div>'
@@ -841,7 +850,7 @@ function renderReels() {
 
     return '<div class="reel-item' + (idx === 0 ? ' reel-active' : '') + '" data-id="' + escHtml(a.id) + '" data-idx="' + idx + '" role="listitem">' +
       mediaHtml +
-      '<div class="reel-info absolute bottom-0 left-0 right-0 p-4 pb-6 bg-gradient-to-t from-black/90 to-transparent">' +
+      '<div class="reel-info absolute bottom-0 left-0 right-0 p-4 pb-6 bg-linear-to-t from-black/90 to-transparent">' +
         '<div class="flex items-center gap-2 mb-2">' +
           faviconHtml +
           '<span class="text-[13px] font-medium text-white/90">' + escHtml(a.feedName) + '</span>' +
@@ -1115,3 +1124,4 @@ function hideReels() {
   document.body.classList.remove('reels-active');
   reelsView.hidden = true;
 }
+

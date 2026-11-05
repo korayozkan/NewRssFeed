@@ -269,15 +269,25 @@ const SUGGESTED_VIDEO_FEEDS = [
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. SUPABASE & CLOUDFLARE YAPILANDIRMASİ
 // ─────────────────────────────────────────────────────────────────────────────
-// Bu değerleri Supabase dashboard'dan kopyalayın:
-//   https://supabase.com/dashboard → Project Settings → API
-// CF_WORKER_URL: Cloudflare Worker deploy ettikten sonra buraya yazın.
+// ORTAM DEĞİŞKENLERİ
+// ─────────────────────────────────────────────────────────────────────────────
+// Keyler bu dosyada hard-code EDİLMEZ.
+// env.js dosyasından okunur — env.js git'e gitmez (.gitignore'da tanımlı).
+//
+// Kurulum:
+//   1. env.example.js'i kopyalayın: env.js adıyla kaydedin
+//   2. env.js içindeki boş stringleri doldurun
+//   3. Supabase: https://supabase.com/dashboard → Project Settings → API
+//   4. Cloudflare: rss-proxy worker deploy sonrası alınan URL
 
-/** @type {string} Supabase proje URL'si — ör: https://xxxx.supabase.co */
-const SUPABASE_URL = '';
+/**
+ * env.js yüklendiyse global ENV_* değişkenleri tanımlıdır.
+ * window üzerinden okumak 'use strict' / const-scope sorunlarını önler.
+ *
+ * @type {string}
+ */
+const SUPABASE_URL      = (typeof window !== 'undefined' && window.ENV_SUPABASE_URL)      || '';
+const SUPABASE_ANON_KEY = (typeof window !== 'undefined' && window.ENV_SUPABASE_ANON_KEY) || '';
+const CF_WORKER_URL     = (typeof window !== 'undefined' && window.ENV_CF_WORKER_URL)     || '';
 
-/** @type {string} Supabase anon/public key */
-const SUPABASE_ANON_KEY = '';
 
-/** @type {string} Cloudflare Worker RSS proxy URL'si — ör: https://rss-proxy.myworker.workers.dev */
-const CF_WORKER_URL = '';

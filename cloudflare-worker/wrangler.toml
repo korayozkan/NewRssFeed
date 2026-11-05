@@ -1,0 +1,28 @@
+# Cloudflare Worker — wrangler.toml
+# Dokümantasyon: https://developers.cloudflare.com/workers/wrangler/configuration/
+#
+# KURULUM:
+#   1. npm install -g wrangler
+#   2. wrangler login
+#   3. Bu dosyada "name" ve "account_id" alanlarını doldurun.
+#   4. cloudflare-worker/ klasöründen deploy edin:
+#        wrangler deploy
+#
+# Rate Limiting:
+#   https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+#   namespace_id benzersiz bir tam sayı olmalı — kendi account'ınız için seçin.
+
+name       = "rss-proxy"
+main       = "rss-proxy.js"
+# account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"  # wrangler.toml'a yazmak yerine
+                                               # CLOUDFLARE_ACCOUNT_ID env değişkeni kullanılabilir.
+compatibility_date = "2024-01-01"
+
+# ── IP tabanlı rate limit — dakikada 60 istek / IP ──────────────────────────
+[[ratelimits]]
+name         = "RSS_RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit  = 60    # dakikada maksimum istek
+  period = 60    # saniye (10 veya 60 olabilir)

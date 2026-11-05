@@ -1,27 +1,76 @@
 'use strict';
 
-// ── RSS PROXY LİSTESİ ──────────────────────────────────────────────────────
-// Sırayla denenir; tümü ücretsiz ve API key gerektirmez.
-// İlk başarılı yanıt döndürülür; hata durumunda bir sonraki proxy'e geçilir.
+// ── CLOUDFLARE WORKER ÜZERİNDEN RSS FETCH ─────────────────────────────────
+// Tüm feed istekleri env.js içinde tanımlanan CF Worker URL'sine gider.
+// CF_WORKER_URL boşsa (local geliştirme ortamı) fetch işlemleri sessizce
+// atlanır — kullanıcıya tek seferlik bir banner gösterilir.
 
-function buildProxies(feedUrl) {
-  var enc = encodeURIComponent(feedUrl);
-  var proxies = [];
+/**
+ * CF Worker URL'sinin tanımlı olup olmadığını döndürür.
+ * @returns {boolean}
+ */
+function hasWorker() {
+  return typeof CF_WORKER_URL !== 'undefined' && !!CF_WORKER_URL;
+}
 
-  // Cloudflare Worker (konfigüre edilmişse birinci sıraya al)
-  if (typeof CF_WORKER_URL !== 'undefined' && CF_WORKER_URL) {
-    proxies.push({ url: CF_WORKER_URL + '/rss?url=' + enc, type: 'xml' });
+/**
+ * CF Worker tanımlı değilse sayfada bir kere uyarı banner'ı gösterir.
+ * (localStorage ile tekrar göstermeme özelliği var)
+ */
+function warnNoWorker() {
+  if (sessionStorage.getItem('cf_warn_shown')) return;
+  sessionStorage.setItem('cf_warn_shown', '1');
+  showToast('env.js içinde CF_WORKER_URL tanımlı değil — feed yüklenemez.');
+}
+
+/**
+ * CF Worker'a feed URL'sini göndererek ham içeriği döndürür.
+ * Önce localStorage cache'i kontrol eder (15 dk TTL).
+ * Worker tanımlı değilse null döner (sessizce atlanır).
+ *
+ * @param {object} feed — { id, name, url, favicon }
+ * @returns {Promise<object|null>}
+ */
+async function fetchFeed(feed) {
+  // CF Worker tanımlı değil — local ortamda sessizce atla
+  if (!hasWorker()) {
+    warnNoWorker();
+    return null;
   }
 
-  // Mevcut üçüncü taraf proxy'ler (fallback)
-  proxies.push({ url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'json' });
-  proxies.push({ url: 'https://api.allorigins.win/raw?url=' + enc,           type: 'xml'  });
-  proxies.push({ url: 'https://corsproxy.io/?' + enc,                        type: 'xml'  });
-  proxies.push({ url: 'https://thingproxy.freeboard.io/fetch/' + feedUrl,   type: 'xml'  });
-  proxies.push({ url: 'https://api.codetabs.com/v1/proxy?quest=' + enc,     type: 'xml'  });
-  proxies.push({ url: 'https://cors.eu.org/' + feedUrl,                     type: 'xml'  });
+  // localStorage cache kontrolü
+  const cached = getCachedFeed(feed.url);
+  if (cached) return cached;
 
-  return proxies;
+  const workerUrl = CF_WORKER_URL + '/rss?url=' + encodeURIComponent(feed.url);
+
+  let res;
+  try {
+    res = await fetch(workerUrl, {
+      signal:  makeAbortSignal(15000),
+      headers: { 'Accept': 'application/rss+xml, application/atom+xml, text/xml, */*' },
+    });
+  } catch (err) {
+    throw new Error(err.name === 'AbortError' ? 'Zaman aşımı' : 'Bağlantı hatası: ' + err.message);
+  }
+
+  if (!res.ok) {
+    const msg = res.status === 429
+      ? 'Çok fazla istek — lütfen biraz bekleyin'
+      : 'Worker HTTP ' + res.status;
+    throw new Error(msg);
+  }
+
+  const text = await res.text();
+  if (!text || !text.trim()) throw new Error('Boş yanıt');
+
+  const result = parseRawXml(text, feed);
+  if (!result || !result.items || result.items.length === 0) {
+    throw new Error('Feed içeriği okunamadı veya boş');
+  }
+
+  setCachedFeed(feed.url, result);
+  return result;
 }
 
 // ── ABORT SIGNAL YARDIMCISI ────────────────────────────────────────────────
@@ -123,65 +172,6 @@ function parseRawXml(xmlText, feed) {
     if (items.length === 0) return null;
     return { status: 'ok', feed: { title: feed.name }, items };
   } catch (_) { return null; }
-}
-
-// ── FEED FETCH ─────────────────────────────────────────────────────────────
-// Önce önbelleği kontrol eder; cache'de yoksa proxy'leri sırayla dener.
-async function fetchFeed(feed) {
-  const cached = getCachedFeed(feed.url);
-  if (cached) return cached;
-
-  const proxies = buildProxies(feed.url);
-  let lastErr   = null;
-
-  for (let i = 0; i < proxies.length; i++) {
-    const proxy = proxies[i];
-    try {
-      const res = await fetch(proxy.url, {
-        signal:  makeAbortSignal(12000),
-        headers: { 'Accept': 'application/json, text/xml, application/xml, */*' },
-      });
-
-      if (!res.ok) { lastErr = new Error('Proxy-' + i + ' HTTP ' + res.status); continue; }
-
-      const text = await res.text();
-      if (!text || !text.trim()) { lastErr = new Error('Boş yanıt'); continue; }
-
-      let result    = null;
-      const firstCh = text.trim()[0];
-
-      if (proxy.type === 'json' || firstCh === '{' || firstCh === '[') {
-        let data;
-        try { data = JSON.parse(text); } catch (_) { result = parseRawXml(text, feed); }
-        if (!result && data) {
-          if (data.status && data.status !== 'ok') {
-            lastErr = new Error(data.message || 'Feed hatası (proxy ' + i + ')');
-            continue;
-          }
-          if (data.items) {
-            result = data;
-          } else if (typeof data.contents === 'string') {
-            result = parseRawXml(data.contents, feed);
-          }
-        }
-      } else {
-        result = parseRawXml(text, feed);
-      }
-
-      if (result && result.items && result.items.length > 0) {
-        setCachedFeed(feed.url, result);
-        return result;
-      }
-
-      lastErr = new Error('Proxy-' + i + ' geçerli veri döndürmedi');
-    } catch (err) {
-      lastErr = err.name === 'AbortError'
-        ? new Error('Proxy-' + i + ' zaman aşımı')
-        : err;
-    }
-  }
-
-  throw lastErr || new Error('Tüm proxy\'ler başarısız oldu');
 }
 
 // ── YARDIMCI FONKSİYONLAR ─────────────────────────────────────────────────
@@ -352,7 +342,8 @@ async function addFeed(rawUrl) {
   const feed = { id: uid(), name: new URL(url).hostname, url, favicon: null };
   setLoading(true);
   try {
-    const data        = await fetchFeed(feed);
+    const data = await fetchFeed(feed);
+    if (!data) { setLoading(false); return; } // CF Worker yok — sessizce atla
     const newArticles = parseFeedData(data, feed);
     state.feeds.push(feed);
     newArticles.forEach(function(na) {
@@ -403,6 +394,14 @@ async function refreshAll() {
   setLoading(true);
   const btn = qs('.refresh-btn');
   btn.classList.add('spinning');
+
+  // CF Worker tanımlı değilse yenileme atlanır
+  if (!hasWorker()) {
+    warnNoWorker();
+    setLoading(false);
+    btn.classList.remove('spinning');
+    return;
+  }
 
   const results = await Promise.allSettled(
     state.feeds.map(function(f) { return fetchFeed(f); })

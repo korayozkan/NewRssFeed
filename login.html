@@ -32,7 +32,7 @@
           autocomplete="email"
           required
           placeholder="ornek@email.com"
-          class="bg-[#111] border border-[#222] rounded-lg text-[#ddd] text-[14px] px-3 py-2 outline-none placeholder:text-[#444] focus:border-[#5b9cf6] transition-colors"
+          class="bg-[#111] border border-[#222] rounded-lg text-[#ddd] text-[14px] px-3 py-2 outline-none placeholder:text-[#444] focus:border-accent transition-colors"
         />
       </div>
       <div class="flex flex-col gap-1.5">
@@ -41,7 +41,7 @@
           <button
             type="button"
             id="forgot-btn"
-            class="text-[12px] text-[#5b9cf6] hover:text-[#7baaff] bg-transparent border-0 cursor-pointer"
+            class="text-[12px] text-accent hover:text-accent-hover bg-transparent border-0 cursor-pointer"
           >Şifremi unuttum</button>
         </div>
         <input
@@ -50,13 +50,13 @@
           autocomplete="current-password"
           required
           placeholder="Şifreniz"
-          class="bg-[#111] border border-[#222] rounded-lg text-[#ddd] text-[14px] px-3 py-2 outline-none placeholder:text-[#444] focus:border-[#5b9cf6] transition-colors"
+          class="bg-[#111] border border-[#222] rounded-lg text-[#ddd] text-[14px] px-3 py-2 outline-none placeholder:text-[#444] focus:border-accent transition-colors"
         />
       </div>
       <button
         type="submit"
         id="login-btn"
-        class="w-full py-2.5 rounded-lg bg-[#5b9cf6] hover:bg-[#4a8ae4] text-white text-[14px] font-medium border-0 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        class="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-[14px] font-medium border-0 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >Giriş Yap</button>
     </form>
 
@@ -90,13 +90,14 @@
     <!-- Kayıt ol linki -->
     <p class="text-center text-[13px] text-[#555]">
       Hesabın yok mu?
-      <a href="register.html" class="text-[#5b9cf6] hover:text-[#7baaff] no-underline">Kayıt ol</a>
+      <a href="register.html" class="text-accent hover:text-accent-hover no-underline">Kayıt ol</a>
     </p>
 
   </div>
 
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="env.js"></script>
   <script src="js/config.js"></script>
   <script>
     (function () {
@@ -116,7 +117,7 @@
         var el = document.getElementById('msg');
         el.textContent = text;
         el.className = 'text-[13px] text-center rounded-lg py-2 px-3 ' +
-          (type === 'error' ? 'bg-[#1a0808] text-[#e84444] border border-[#3a1a1a]' : 'bg-[#0d1520] text-[#5b9cf6] border border-[#1a2a40]');
+          (type === 'error' ? 'bg-[#1a0808] text-[#e84444] border border-[#3a1a1a]' : 'bg-[#0d1520] text-accent border border-[#1a2a40]');
         el.hidden = false;
       }
 
@@ -190,3 +191,4 @@
   </script>
 </body>
 </html>
+

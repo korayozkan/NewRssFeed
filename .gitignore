@@ -1,4 +1,4 @@
-# OS / Sistem Geçici Dosyaları
+# ── OS / Sistem ───────────────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
 ._*
@@ -8,30 +8,51 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# IDE, Editör ve Geliştirici Araçları
+# ── IDE / Editör ───────────────────────────────────────────────────────────────
 .idea/
-.vscode/
+# .vscode/ kasıtlı olarak izlenir — settings.json Tailwind linter ayarlarını içerir
+# Kişisel VS Code ayarlarını hariç tut:
+.vscode/extensions.json
+.vscode/*.code-workspace
 *.swp
 *.swo
 *~
 *.sublime-project
 *.sublime-workspace
 
-# Log Dosyaları
+# ── Log ────────────────────────────────────────────────────────────────────────
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Yedek ve Geçici Test Dosyaları
+# ── Geçici dosyalar ────────────────────────────────────────────────────────────
 *.tmp
 *.bak
-*.swp
 
-# İlerleme / Bağımlılık Olma İhtimaline Karşı (Gelecekte eklenirse)
+# ── Bağımlılıklar ──────────────────────────────────────────────────────────────
 node_modules/
-dist/
+
+# ── Build çıktısı ──────────────────────────────────────────────────────────────
+# dist/ kasıtlı olarak izlenir — GitHub Pages dist/output.css'e ihtiyaç duyar.
+# Sadece büyük/gereksiz artefaktları dışla:
 build/
+
+# ── Agent / CI çalışma dosyaları ───────────────────────────────────────────────
+.agents/
+
+# ── Ortam / Secret dosyaları (asla git'e gitmez) ──────────────────────────────
 .env
 .env.local
 .env.*.local
+
+# env.js — gerçek Supabase / CF keyleri burada (şablon: env.example.js)
+env.js
+
+# Wrangler local geliştirme ortamı değişkenleri
+# https://developers.cloudflare.com/workers/testing/local-development/#local-only-environment-variables
+cloudflare-worker/.dev.vars
+
+# Wrangler state & cache
+.wrangler/
+cloudflare-worker/.wrangler/

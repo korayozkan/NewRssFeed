@@ -1,217 +1,150 @@
 'use strict';
 
-// ── OLAY DİNLEYİCİLERİ ────────────────────────────────────────────────────
-// Tüm kullanıcı etkileşimleri buradan bağlanır.
-// DOM yüklendikten sonra main.js init() tarafından çağrılır.
-
+// ─────────────────────────────────────────────────────────────────────────────
+// OLAY DİNLEYİCİLERİ
+// main.js → init() tarafından DOMContentLoaded sonrası çağrılır.
+// ─────────────────────────────────────────────────────────────────────────────
 function bindEvents() {
-  const urlInput = qs('.feed-input');
 
-  // ── Feed ekleme ───────────────────────────────────────────────────────
-  qs('.add-btn').addEventListener('click', function() {
-    addFeed(urlInput.value);
-    urlInput.value = '';
-  });
-  urlInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') { addFeed(urlInput.value); urlInput.value = ''; }
-  });
+  // ── Topbar: Yenile ────────────────────────────────────────────────────────
+  qs('.refresh-btn')?.addEventListener('click', refreshAll);
 
-  // ── Hızlı ekleme butonları ────────────────────────────────────────────
-  qsa('.quick-add-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      const platform = btn.dataset.platform;
-      const direct   = PLATFORM_DIRECT[platform];
-      if (direct) { addFeed(direct); return; }
-      const info = PLATFORM_HINTS[platform];
-      if (!info) return;
-      urlInput.focus();
-      urlInput.placeholder = info.hint ? info.hint.split('\n')[0] : 'URL yapıştırın…';
-      urlInput.dataset.hintPlatform = platform;
-      if (info.hint) showToast(info.label + ': ' + info.hint.split('\n')[1].trim());
-    });
+  // ── Topbar: Bildirim ──────────────────────────────────────────────────────
+  qs('.notif-btn')?.addEventListener('click', () => {
+    const unread = state.articles.filter(a => !a.read).length;
+    showToast(unread > 0 ? `${unread} okunmamış haber var` : 'Tüm haberler okundu');
   });
 
-  urlInput.addEventListener('blur', function() {
-    urlInput.placeholder = 'URL yapıştır (YouTube, Reddit…)';
-    delete urlInput.dataset.hintPlatform;
-  });
-
-  // ── Genel toolbar ─────────────────────────────────────────────────────
-  qs('.refresh-btn').addEventListener('click', refreshAll);
-  qs('.mark-all-btn').addEventListener('click', markAllRead);
-
-  // ── Filtre chip'leri (tümü / okunmamış / yıldızlı) ────────────────────
-  qsa('.filter-chip:not(.filter-chip-days)').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+  // ── Filtre chip'leri (Tümü / Okunmamış / Yıldızlı) ───────────────────────
+  qsa('.filter-chip:not(.filter-chip-days)').forEach(btn => {
+    btn.addEventListener('click', () => {
       state.activeFilter = btn.dataset.filter;
-      qsa('.filter-chip:not(.filter-chip-days)').forEach(function(b) { b.classList.remove('active'); });
+      qsa('.filter-chip:not(.filter-chip-days)').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderArticles();
     });
   });
 
-  // ── 7 gün filtresi ─────────────────────────────────────────────────────
+  // ── Filtre: Son 7 Gün ─────────────────────────────────────────────────────
   const daysBtn = qs('.filter-chip-days');
   if (daysBtn) {
-    daysBtn.classList.toggle('active-days', state.daysFilter === 7);
-    daysBtn.addEventListener('click', function() {
-      if (state.daysFilter === 7) {
-        state.daysFilter = 0;
-        daysBtn.textContent = 'Tüm Zamanlar';
-        daysBtn.classList.remove('active-days');
-      } else {
-        state.daysFilter = 7;
-        daysBtn.textContent = 'Son 7 Gün';
-        daysBtn.classList.add('active-days');
-      }
+    daysBtn.textContent = state.daysFilter === 7 ? 'Son 7 Gün' : 'Tüm Zamanlar';
+    daysBtn.addEventListener('click', () => {
+      state.daysFilter = state.daysFilter === 7 ? 0 : 7;
+      daysBtn.textContent = state.daysFilter === 7 ? 'Son 7 Gün' : 'Tüm Zamanlar';
       saveState();
       renderArticles();
     });
-    daysBtn.textContent = state.daysFilter === 7 ? 'Son 7 Gün' : 'Tüm Zamanlar';
   }
 
-  // ── Arama (debounce 250ms) ─────────────────────────────────────────────
-  let searchTimer;
-  qs('.search-input').addEventListener('input', function(e) {
-    clearTimeout(searchTimer);
-    const val = e.target.value;
-    searchTimer = setTimeout(function() { state.searchQuery = val; renderArticles(); }, 250);
-  });
+  // ── Analitik paneli ───────────────────────────────────────────────────────
+  qs('.analytics-close-btn')?.addEventListener('click', closeAnalytics);
 
-  // ── Liste / Kart görünümü ─────────────────────────────────────────────
-  qs('.layout-list').addEventListener('click', function() {
-    state.layout = 'list';
-    qs('.layout-list').classList.add('active');     qs('.layout-list').setAttribute('aria-pressed', 'true');
-    qs('.layout-grid').classList.remove('active');  qs('.layout-grid').setAttribute('aria-pressed', 'false');
-    renderArticles(); saveState();
-  });
-  qs('.layout-grid').addEventListener('click', function() {
-    state.layout = 'grid';
-    qs('.layout-grid').classList.add('active');     qs('.layout-grid').setAttribute('aria-pressed', 'true');
-    qs('.layout-list').classList.remove('active');  qs('.layout-list').setAttribute('aria-pressed', 'false');
-    renderArticles(); saveState();
-  });
-
-  // ── Modal kapatma ──────────────────────────────────────────────────────
-  qs('.modal-close-btn').addEventListener('click', closeModal);
-  qs('.modal-backdrop').addEventListener('click', function(e) {
+  // ── Modal: Kapat ──────────────────────────────────────────────────────────
+  qs('.modal-close-btn')?.addEventListener('click', closeModal);
+  qs('.modal-backdrop')?.addEventListener('click', e => {
     if (e.target === e.currentTarget) closeModal();
   });
 
-  // ── Klavye kısayolları ─────────────────────────────────────────────────
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      if (!qs('.lightbox').hidden) { closeLightbox(); return; }
-      if (document.body.classList.contains('zen-mode')) { exitZenMode(); return; }
-      closeModal();
-      closeAnalytics();
-    }
-  });
-
-  // ── Not paneli toggle ─────────────────────────────────────────────────
-  qs('.modal-notes-btn').addEventListener('click', function() {
+  // ── Modal: Not paneli ─────────────────────────────────────────────────────
+  qs('.modal-notes-btn')?.addEventListener('click', () => {
     const pane = qs('.notes-pane');
     const btn  = qs('.modal-notes-btn');
     pane.hidden = !pane.hidden;
     btn.classList.toggle('active', !pane.hidden);
-    btn.setAttribute('aria-pressed', !pane.hidden ? 'true' : 'false');
+    btn.setAttribute('aria-pressed', String(!pane.hidden));
   });
 
-  // ── Tipografi paneli toggle ────────────────────────────────────────────
-  qs('.modal-typo-btn').addEventListener('click', function() {
+  // ── Modal: Tipografi paneli ───────────────────────────────────────────────
+  qs('.modal-typo-btn')?.addEventListener('click', () => {
     const panel = qs('.typo-panel');
     const btn   = qs('.modal-typo-btn');
     panel.hidden = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.setAttribute('aria-pressed', !panel.hidden ? 'true' : 'false');
+    btn.setAttribute('aria-pressed', String(!panel.hidden));
     if (!panel.hidden) syncTypoPanel();
   });
 
-  // ── Zen modu ──────────────────────────────────────────────────────────
-  qs('.modal-zen-btn').addEventListener('click', toggleZenMode);
+  // ── Modal: Zen modu ───────────────────────────────────────────────────────
+  qs('.modal-zen-btn')?.addEventListener('click', toggleZenMode);
 
-  // ── Font seçimi (delegasyon) ───────────────────────────────────────────
-  document.addEventListener('click', function(e) {
+  // ── Font seçimi (event delegation) ───────────────────────────────────────
+  document.addEventListener('click', e => {
     const fb = e.target.closest('.font-btn');
     if (!fb) return;
     state.typo.font = fb.dataset.font;
-    qsa('.font-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.font === state.typo.font); });
+    qsa('.font-btn').forEach(b => b.classList.toggle('active', b.dataset.font === state.typo.font));
     applyTypography();
     saveState();
   });
 
-  // ── Tipografi slider'ları ─────────────────────────────────────────────
-  function bindSlider(id, prop, isLine) {
-    const el = qs('#' + id);
+  // ── Tipografi slider'ları ─────────────────────────────────────────────────
+  [
+    { id: 'typo-size',   prop: 'size',   format: v => `${v}px` },
+    { id: 'typo-line',   prop: 'line',   format: v => (v / 10).toFixed(1) },
+    { id: 'typo-letter', prop: 'letter', format: v => `${v}px` },
+    { id: 'typo-width',  prop: 'width',  format: v => `${v}px` },
+  ].forEach(({ id, prop, format }) => {
+    const el  = qs(`#${id}`);
+    const lbl = qs(`#${id}-val`);
     if (!el) return;
-    el.addEventListener('input', function() {
+    el.addEventListener('input', () => {
       const v = Number(el.value);
       state.typo[prop] = v;
-      const lbl = qs('#' + id + '-val');
-      if (lbl) lbl.textContent = isLine ? (v / 10).toFixed(1) : v + 'px';
+      if (lbl) lbl.textContent = format(v);
       applyTypography();
       saveState();
     });
-  }
-  bindSlider('typo-size',   'size',   false);
-  bindSlider('typo-line',   'line',   true);
-  bindSlider('typo-letter', 'letter', false);
-  bindSlider('typo-width',  'width',  false);
+  });
 
-  // ── Tipografi ± butonları ─────────────────────────────────────────────
-  document.addEventListener('click', function(e) {
+  // ── Tipografi ± butonları ─────────────────────────────────────────────────
+  const TYPO_CONFIG = {
+    size:   { min: 13, max: 22, step: 1 },
+    line:   { min: 14, max: 22, step: 1 },
+    letter: { min: -2, max: 10, step: 1 },
+    width:  { min: 400, max: 900, step: 20 },
+  };
+
+  document.addEventListener('click', e => {
     const btn = e.target.closest('.typo-minus, .typo-plus');
     if (!btn) return;
-    const target = btn.dataset.target;
-    const isPlus = btn.classList.contains('typo-plus');
-    const steps  = { size: 1, line: 1, letter: 1, width: 20 };
-    const mins   = { size: 13, line: 14, letter: -2, width: 400 };
-    const maxs   = { size: 22, line: 22, letter: 10, width: 900 };
-    let val = state.typo[target] + (isPlus ? steps[target] : -steps[target]);
-    val = Math.max(mins[target], Math.min(maxs[target], val));
-    state.typo[target] = val;
+    const prop   = btn.dataset.target;
+    const cfg    = TYPO_CONFIG[prop];
+    const delta  = btn.classList.contains('typo-plus') ? cfg.step : -cfg.step;
+    state.typo[prop] = Math.max(cfg.min, Math.min(cfg.max, state.typo[prop] + delta));
     syncTypoPanel();
     applyTypography();
     saveState();
   });
 
-  // ── Lightbox ──────────────────────────────────────────────────────────
-  qs('.lightbox-close').addEventListener('click', closeLightbox);
-  qs('.lightbox').addEventListener('click', function(e) {
+  // ── Lightbox ──────────────────────────────────────────────────────────────
+  qs('.lightbox-close')?.addEventListener('click', closeLightbox);
+  qs('.lightbox')?.addEventListener('click', e => {
     if (e.target === e.currentTarget) closeLightbox();
   });
 
-  // ── Kenar çubuğu ──────────────────────────────────────────────────────
-  qs('.menu-btn').addEventListener('click', openSidebar);
-  qs('.sidebar-close').addEventListener('click', closeSidebar);
-  qs('.overlay').addEventListener('click', closeSidebar);
-
-  // ── Export / Import ────────────────────────────────────────────────────
-  qs('.export-btn').addEventListener('click', exportFeeds);
-  qs('.import-input').addEventListener('change', function(e) {
-    importFeeds(e.target.files[0]);
-    e.target.value = '';
+  // ── Klavye kısayolları ────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (!qs('.lightbox').hidden)                    { closeLightbox(); return; }
+    if (document.body.classList.contains('zen-mode')) { exitZenMode();   return; }
+    closeModal();
+    closeAnalytics();
   });
 
-  // ── Analitik paneli ────────────────────────────────────────────────────
-  qs('.analytics-btn').addEventListener('click', openAnalytics);
-  qs('.analytics-close-btn').addEventListener('click', closeAnalytics);
-
-  // ── Vurgu renk seçici ─────────────────────────────────────────────────
-  qsa('.hl-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+  // ── Vurgu renk seçici ─────────────────────────────────────────────────────
+  qsa('.hl-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
       state.activeColor = btn.dataset.color;
-      qsa('.hl-btn').forEach(function(b) { b.classList.remove('active'); });
+      qsa('.hl-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     });
   });
-  // İlk rengi varsayılan olarak aktif et
-  const firstHl = qs('.hl-btn');
-  if (firstHl) firstHl.classList.add('active');
+  qs('.hl-btn')?.classList.add('active'); // ilk rengi varsayılan yap
 
-  // ── Metin seçimi → vurgu ──────────────────────────────────────────────
-  qs('.modal-content').addEventListener('mouseup', function() {
-    const aid = qs('.modal-backdrop').dataset.aid;
+  // ── Metin seçimi → vurgu ──────────────────────────────────────────────────
+  qs('.modal-content')?.addEventListener('mouseup', () => {
+    const aid = qs('.modal-backdrop')?.dataset.aid;
     if (aid) handleHighlight(aid);
   });
 }

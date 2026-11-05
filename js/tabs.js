@@ -1,189 +1,214 @@
 'use strict';
 
-// ── MOBİL TAB NAVIGASYON ───────────────────────────────────────────────────
-// 640px altında sidebar yerine alt tab bar kullanılır.
-// Masaüstünde bu modül sessiz kalır; isMobile() false döner.
+// ─────────────────────────────────────────────────────────────────────────────
+// MOBİL TAB NAVİGASYON
+// Yalnızca 640px altında etkin olur; masaüstünde hiçbir şey yapmaz.
+// Sekmeler: home | discover | profile (→ profil.html)
+// ─────────────────────────────────────────────────────────────────────────────
 
-var MOBILE_BP = 640;
+const MOBILE_BP = 640;
+const isMobile  = () => window.innerWidth <= MOBILE_BP;
 
-function isMobile() {
-  return window.innerWidth <= MOBILE_BP;
+// ── Keşfet sekmesi filtre durumu ──────────────────────────────────────────────
+let discoverFilter = 'all';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Keşfet makalelerini render et
+// ─────────────────────────────────────────────────────────────────────────────
+function renderDiscoverArticles() {
+  const container = qs('.discover-articles');
+  const emptyEl   = qs('.discover-empty');
+  const loadingEl = qs('.discover-loading');
+  if (!container) return;
+
+  // Aktif feed → filtre → arama sırasıyla daralt
+  let list = state.articles.slice();
+
+  const feedId = state.activeFeedId;
+  if (feedId !== 'all' && feedId !== 'home' && feedId !== 'reels') {
+    list = list.filter(a => a.feedId === feedId);
+  }
+  if (discoverFilter === 'unread')  list = list.filter(a => !a.read);
+  if (discoverFilter === 'starred') list = list.filter(a => a.starred);
+
+  const q = qs('.search-input-discover')?.value?.toLowerCase() || '';
+  if (q) {
+    list = list.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.desc.toLowerCase().includes(q)  ||
+      a.feedName.toLowerCase().includes(q)
+    );
+  }
+
+  if (loadingEl) loadingEl.hidden = true;
+
+  if (list.length === 0) {
+    container.innerHTML = '';
+    if (emptyEl) emptyEl.hidden = false;
+    return;
+  }
+  if (emptyEl) emptyEl.hidden = true;
+
+  container.innerHTML = list.map(a => {
+    const thumb    = a.image ? `<img class="article-thumb w-20 h-16 object-cover rounded shrink-0" src="${escHtml(a.image)}" alt="" loading="lazy" onerror="this.remove()">` : '';
+    const tagsHtml = a.tags?.length
+      ? `<div class="flex flex-wrap gap-1 mt-1">${a.tags.map(t => `<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#111] border border-[#1a1a1a] text-[#555]">${escHtml(t)}</span>`).join('')}</div>`
+      : '';
+
+    return `
+      <li class="article-card discover-card${a.read ? ' read' : ''}"
+          data-id="${escHtml(a.id)}" tabindex="0" role="button" aria-label="${escHtml(a.title)}">
+        <span class="absolute left-1 top-4 w-1.5 h-1.5 rounded-full bg-accent${a.read ? ' hidden' : ''}" aria-hidden="true"></span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1">
+            <img class="w-3.5 h-3.5 rounded" src="${escHtml(a.favicon || '')}" alt="" onerror="this.style.display='none'" loading="lazy">
+            <span class="text-[11px] text-[#666]">${escHtml(a.feedName)}</span>
+            <time class="ml-auto text-[11px] text-[#444]">${formatDate(a.date)}</time>
+          </div>
+          <h3 class="text-[14px] font-medium text-[#ddd] leading-snug mb-1">${escHtml(a.title)}</h3>
+          ${a.desc ? `<p class="text-[13px] text-[#666] line-clamp-2">${escHtml(a.desc)}</p>` : ''}
+          ${tagsHtml}
+        </div>
+        ${thumb}
+        <div class="shrink-0 flex flex-col items-center gap-1">
+          <button class="discover-star-btn p-1 text-[#444] hover:text-star bg-transparent border-0 cursor-pointer text-base${a.starred ? ' starred' : ''}"
+                  data-id="${escHtml(a.id)}" title="${a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle'}">
+            ${a.starred ? '★' : '☆'}
+          </button>
+        </div>
+      </li>`;
+  }).join('');
+
+  // Olay dinleyicileri
+  qsa('.discover-card', container).forEach(card => {
+    card.addEventListener('click', e => {
+      if (!e.target.closest('.discover-star-btn')) openModal(card.dataset.id);
+    });
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter') openModal(card.dataset.id);
+    });
+  });
+
+  qsa('.discover-star-btn', container).forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const starred = toggleStar(btn.dataset.id);
+      btn.classList.toggle('starred', starred);
+      btn.textContent = starred ? '★' : '☆';
+      btn.title = starred ? 'Yıldızı kaldır' : 'Yıldız ekle';
+      renderFeedList();
+    });
+  });
 }
 
-// Aktif sekmeyi state'e yaz ve DOM'u güncelle
+// ─────────────────────────────────────────────────────────────────────────────
+// Sekme geçişi
+// ─────────────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
   if (!isMobile()) return;
 
+  // Profil sekmesi doğrudan sayfaya yönlendirir
+  if (tab === 'profile') {
+    window.location.href = 'profil.html';
+    return;
+  }
+
   // Tab butonlarını güncelle
-  qsa('.tab-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.dataset.tab === tab);
+  qsa('.tab-btn').forEach(btn => {
+    const active = btn.dataset.tab === tab;
+    btn.classList.toggle('active', active);
+    btn.style.color = active ? 'var(--color-accent, #5b9cf6)' : '';
   });
 
-  // Body class — CSS'in body.tab-* kuralları için
-  document.body.classList.remove('tab-home', 'tab-discover', 'tab-profile');
-  document.body.classList.add('tab-' + tab);
+  document.body.className = document.body.className
+    .replace(/\btab-\S+/g, '').trim() + ` tab-${tab}`;
 
-  var profileView = qs('.mobile-profile-view');
+  // Tüm mobil view'ları gizle, main'i göster
+  qs('.reels-view').hidden             = true;
+  qs('.mobile-discover-view').hidden   = true;
+  qs('.main').style.display            = '';
 
   if (tab === 'home') {
-    profileView.hidden = true;
-    qs('.main').style.display = '';
-    if (qs('.reels-view')) qs('.reels-view').hidden = true;
     showHomepage();
     if (state.articles.length > 0) renderHomepage();
     else qs('.homepage-empty').hidden = false;
 
   } else if (tab === 'discover') {
-    profileView.hidden = true;
-    qs('.main').style.display = '';
-    // Reels view
-    qs('.homepage-view').hidden  = true;
-    qs('.articles-wrap').hidden  = true;
-    qs('.filter-bar').hidden     = true;
-    qs('.reels-view').hidden     = false;
-    qs('.page-title').textContent = 'Reels';
-    renderReels();
-
-  } else if (tab === 'profile') {
-    if (qs('.reels-view')) qs('.reels-view').hidden = true;
-    pauseActiveReel();
-    qs('.main').style.display = 'none';
-    profileView.hidden = false;
-    renderMobileFeedList();
+    qs('.main').style.display          = 'none';
+    qs('.mobile-discover-view').hidden = false;
+    renderDiscoverArticles();
   }
 
   state.activeTab = tab;
 }
 
-// Profil view'daki feed listesini render et
-function renderMobileFeedList() {
-  var container = qs('.feed-list-mobile');
-  if (!container) return;
-
-  var allUnread = state.articles.filter(function(a) { return !a.read; }).length;
-  var html = '';
-
-  html += '<div class="feed-item' + (state.activeFeedId === 'all' ? ' active' : '') +
-    '" data-feedid="all" role="button" tabindex="0">' +
-    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">☰</span>' +
-    '<span class="flex-1 text-[13px] truncate">Tüm Haberler</span>' +
-    (allUnread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + allUnread + '</span>' : '') + '</div>';
-
-  state.feeds.forEach(function(feed) {
-    var unread = state.articles.filter(function(a) { return a.feedId === feed.id && !a.read; }).length;
-    var fav = feed.favicon
-      ? '<img class="feed-favicon w-4 h-4 rounded object-cover" src="' + escHtml(feed.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-      : '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">' + escHtml(feed.name.charAt(0).toUpperCase()) + '</span>';
-
-    html += '<div class="feed-item group' + (state.activeFeedId === feed.id ? ' active' : '') +
-      '" data-feedid="' + escHtml(feed.id) + '" role="button" tabindex="0">' +
-      fav +
-      '<span class="flex-1 text-[13px] truncate">' + escHtml(feed.name) + '</span>' +
-      (unread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + unread + '</span>' : '') +
-      '<button class="feed-remove opacity-0 group-hover:opacity-100 ml-auto p-0.5 text-[#555] hover:text-[#e84444] bg-transparent border-0 cursor-pointer text-xs" data-removeid="' + escHtml(feed.id) + '" aria-label="Sil">✕</button></div>';
-  });
-
-  container.innerHTML = html;
-
-  // Feed'e tıklayınca Keşfet sekmesine geç
-  qsa('.feed-item', container).forEach(function(el) {
-    el.addEventListener('click', function(e) {
-      if (e.target.closest('.feed-remove')) return;
-      state.activeFeedId = el.dataset.feedid;
-      switchTab('discover');
-    });
-    el.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
-    });
-  });
-
-  qsa('.feed-remove', container).forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      removeFeed(btn.dataset.removeid);
-      renderMobileFeedList();
-    });
-  });
-}
-
-// Olayları bağla
+// ─────────────────────────────────────────────────────────────────────────────
+// Olay bağlama
+// ─────────────────────────────────────────────────────────────────────────────
 function bindTabEvents() {
+
   // Tab butonları
-  qsa('.tab-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      switchTab(btn.dataset.tab);
+  qsa('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // Keşfet: filtre chip'leri
+  qsa('.discover-filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      discoverFilter = btn.dataset.filter;
+      qsa('.discover-filter-chip').forEach(b => {
+        const active = b.dataset.filter === discoverFilter;
+        b.classList.toggle('active', active);
+      });
+      renderDiscoverArticles();
     });
   });
 
-  // Profil — feed ekle (mobil input)
-  var mobileInput = qs('.feed-input-mobile');
-  var mobileAddBtn = qs('.add-btn-mobile');
+  // Keşfet: arama
+  let searchTimer;
+  qs('.search-input-discover')?.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderDiscoverArticles, 250);
+  });
+
+  // Keşfet: yenile
+  qs('.refresh-btn-discover')?.addEventListener('click', refreshAll);
+
+  // Mobil: feed ekle
+  const mobileInput  = qs('.feed-input-mobile');
+  const mobileAddBtn = qs('.add-btn-mobile');
   if (mobileInput && mobileAddBtn) {
-    mobileAddBtn.addEventListener('click', function() {
-      addFeed(mobileInput.value);
-      mobileInput.value = '';
-    });
-    mobileInput.addEventListener('keydown', function(e) {
+    mobileAddBtn.addEventListener('click', () => { addFeed(mobileInput.value); mobileInput.value = ''; });
+    mobileInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') { addFeed(mobileInput.value); mobileInput.value = ''; }
     });
   }
 
-  // Profil — ayarlar butonu
-  var profileSettingsBtn = qs('.settings-btn-profile');
-  if (profileSettingsBtn) {
-    profileSettingsBtn.addEventListener('click', openSettings);
-  }
+  // Mobil: ayarlar
+  qs('.settings-btn-profile')?.addEventListener('click', openSettings);
 
-  // Profil — dışa aktar
-  var mobileExportBtn = qs('.export-btn-mobile');
-  if (mobileExportBtn) {
-    mobileExportBtn.addEventListener('click', exportFeeds);
-  }
+  // Mobil: dışa aktar
+  qs('.export-btn-mobile')?.addEventListener('click', exportFeeds);
 
-  // Profil — içe aktar
-  var mobileImportInput = qs('.import-input-mobile');
-  if (mobileImportInput) {
-    mobileImportInput.addEventListener('change', function(e) {
-      importFeeds(e.target.files[0]);
-      e.target.value = '';
-    });
-  }
-
-  // Profil — hızlı ekle butonları (mobil)
-  // Desktop'takilerle aynı data-platform — events.js zaten tüm .quick-add-btn'leri bağlar,
-  // ama mobil kopyaları için de bağlamalıyız (events.js DOMContentLoaded'dan önce bind eder)
-  qsa('.mobile-profile-view .quick-add-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var platform = btn.dataset.platform;
-      var direct = PLATFORM_DIRECT[platform];
-      if (direct) {
-        addFeed(direct);
-        if (isMobile()) switchTab('discover');
-        return;
-      }
-      var info = PLATFORM_HINTS[platform];
-      if (!info) return;
-      if (mobileInput) {
-        mobileInput.focus();
-        mobileInput.placeholder = info.hint ? info.hint.split('\n')[0] : 'URL yapıştırın…';
-      }
-    });
+  // Mobil: içe aktar
+  qs('.import-input-mobile')?.addEventListener('change', e => {
+    importFeeds(e.target.files[0]);
+    e.target.value = '';
   });
 
-  // Pencere boyutu değişince tab durumunu temizle
-  window.addEventListener('resize', function() {
-    if (!isMobile()) {
-      document.body.classList.remove('tab-home', 'tab-discover', 'tab-profile');
-      var profileView = qs('.mobile-profile-view');
-      if (profileView) profileView.hidden = true;
-      qs('.main').style.display = '';
-    }
+  // Pencere yeniden boyutlandırılınca mobil durumu temizle
+  window.addEventListener('resize', () => {
+    if (isMobile()) return;
+    document.body.classList.remove('tab-home', 'tab-discover', 'tab-profile');
+    qs('.mobile-discover-view').hidden = true;
+    qs('.main').style.display          = '';
   });
 }
 
-// İlk yüklemede başlat
+// ─────────────────────────────────────────────────────────────────────────────
+// İlk yükleme
+// ─────────────────────────────────────────────────────────────────────────────
 function initTabs() {
   if (!isMobile()) return;
-  var saved = state.activeTab || 'home';
-  switchTab(saved);
+  switchTab(state.activeTab || 'home');
 }
