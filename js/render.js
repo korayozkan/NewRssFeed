@@ -387,42 +387,99 @@ function renderHomepage() {
   }
   emptyMsg.hidden = true;
 
-  const top5 = recent
+  // Puanlayıp sırala — skoru yüksek 20 gönderi
+  const posts = recent
     .map(function(a) { return { article: a, score: scoreArticle(a) }; })
     .sort(function(a, b) { return b.score - a.score; })
-    .slice(0, 5);
+    .slice(0, 20);
 
-  cardsList.innerHTML = top5.map(function(item, i) {
+  cardsList.innerHTML = posts.map(function(item) {
     const a = item.article;
-    const thumb = a.image
-      ? '<div class="hp-card-thumb" style="background-image:url(' + escHtml(a.image) + ')"></div>'
-      : '<div class="hp-card-thumb hp-card-thumb-empty"><span>' + escHtml(a.feedName.charAt(0)) + '</span></div>';
+
+    // Görsel bölümü
+    const imageHtml = a.image
+      ? '<div class="post-image" style="background-image:url(' + escHtml(a.image) + ')" role="img" aria-label="' + escHtml(a.title) + '"></div>'
+      : '<div class="post-image post-image-empty"><span class="post-image-letter">' + escHtml(a.feedName.charAt(0)) + '</span></div>';
+
+    // Etiketler
     const tagsHtml = (a.tags && a.tags.length)
-      ? '<div class="hp-card-tags">' +
-          a.tags.slice(0, 2).map(function(t) { return '<span class="hp-card-tag">' + escHtml(t) + '</span>'; }).join('') +
+      ? '<div class="post-tags">' +
+          a.tags.slice(0, 3).map(function(t) { return '<span class="post-tag">' + escHtml(t) + '</span>'; }).join('') +
         '</div>'
       : '';
 
-    return '<li class="hp-card' + (i === 0 ? ' hp-card-first' : '') + (a.read ? ' read' : '') +
-      '" data-id="' + escHtml(a.id) + '" tabindex="0" role="button" aria-label="' + escHtml(a.title) + '">' +
-      '<div class="hp-card-rank">' + (i + 1) + '</div>' +
-      thumb +
-      '<div class="hp-card-body">' +
-        '<div class="hp-card-meta">' +
-          '<img class="hp-card-favicon" src="' + escHtml(a.favicon || '') + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' +
-          '<span class="hp-card-source">' + escHtml(a.feedName) + '</span>' +
-          '<span class="hp-card-dot">·</span>' +
-          '<time class="hp-card-date">' + formatDate(a.date) + '</time>' +
+    return '<li class="post-card' + (a.read ? ' post-read' : '') + '"' +
+      ' data-id="' + escHtml(a.id) + '" tabindex="0" role="article" aria-label="' + escHtml(a.title) + '">' +
+
+      // ── Üst: kaynak bilgisi ──
+      '<header class="post-header">' +
+        '<div class="post-avatar">' +
+          (a.favicon
+            ? '<img class="post-avatar-img" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">'
+            : '') +
+          '<span class="post-avatar-letter" style="' + (a.favicon ? 'display:none' : '') + '">' + escHtml(a.feedName.charAt(0)) + '</span>' +
         '</div>' +
-        '<h2 class="hp-card-title">' + escHtml(a.title) + '</h2>' +
-        (a.desc ? '<p class="hp-card-desc">' + escHtml(a.desc) + '</p>' : '') +
+        '<div class="post-source-info">' +
+          '<span class="post-source-name">' + escHtml(a.feedName) + '</span>' +
+          '<time class="post-source-date">' + formatDate(a.date) + '</time>' +
+        '</div>' +
+        '<button class="post-star-btn' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '" title="Yıldız">' +
+          (a.starred ? '★' : '☆') +
+        '</button>' +
+      '</header>' +
+
+      // ── Görsel ──
+      imageHtml +
+
+      // ── Alt: başlık + aksiyon ──
+      '<div class="post-body">' +
+        '<h2 class="post-title">' + escHtml(a.title) + '</h2>' +
+        (a.desc ? '<p class="post-desc">' + escHtml(a.desc) + '</p>' : '') +
         tagsHtml +
-      '</div></li>';
+        '<div class="post-actions">' +
+          '<button class="post-action-btn post-read-btn" data-id="' + escHtml(a.id) + '" aria-label="Oku">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
+            '<span>Oku</span>' +
+          '</button>' +
+          '<a class="post-action-btn post-open-btn" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener noreferrer" aria-label="Orijinalde aç">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+            '<span>Aç</span>' +
+          '</a>' +
+        '</div>' +
+      '</div>' +
+    '</li>';
   }).join('');
 
-  qsa('.hp-card', cardsList).forEach(function(card) {
-    card.addEventListener('click', function() { openModal(card.dataset.id); });
-    card.addEventListener('keydown', function(e) { if (e.key === 'Enter') openModal(card.dataset.id); });
+  // Event listener'lar
+  qsa('.post-card', cardsList).forEach(function(card) {
+    // Karta tıklayınca modal aç (butonlar hariç)
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.post-star-btn') ||
+          e.target.closest('.post-read-btn') ||
+          e.target.closest('.post-open-btn')) return;
+      openModal(card.dataset.id);
+    });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') openModal(card.dataset.id);
+    });
+  });
+
+  qsa('.post-star-btn', cardsList).forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const starred = toggleStar(btn.dataset.id);
+      btn.classList.toggle('starred', starred);
+      btn.textContent = starred ? '★' : '☆';
+      btn.setAttribute('aria-label', starred ? 'Yıldızı kaldır' : 'Yıldız ekle');
+      renderFeedList();
+    });
+  });
+
+  qsa('.post-read-btn', cardsList).forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openModal(btn.dataset.id);
+    });
   });
 }
 
