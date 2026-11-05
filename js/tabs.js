@@ -65,22 +65,22 @@ function renderMobileFeedList() {
 
   html += '<div class="feed-item' + (state.activeFeedId === 'all' ? ' active' : '') +
     '" data-feedid="all" role="button" tabindex="0">' +
-    '<span class="feed-favicon-placeholder">☰</span>' +
-    '<span class="feed-name">Tüm Haberler</span>' +
-    (allUnread > 0 ? '<span class="feed-count">' + allUnread + '</span>' : '') + '</div>';
+    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">☰</span>' +
+    '<span class="flex-1 text-[13px] truncate">Tüm Haberler</span>' +
+    (allUnread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + allUnread + '</span>' : '') + '</div>';
 
   state.feeds.forEach(function(feed) {
     var unread = state.articles.filter(function(a) { return a.feedId === feed.id && !a.read; }).length;
     var fav = feed.favicon
-      ? '<img class="feed-favicon" src="' + escHtml(feed.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-      : '<span class="feed-favicon-placeholder">' + escHtml(feed.name.charAt(0).toUpperCase()) + '</span>';
+      ? '<img class="feed-favicon w-4 h-4 rounded object-cover" src="' + escHtml(feed.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      : '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">' + escHtml(feed.name.charAt(0).toUpperCase()) + '</span>';
 
-    html += '<div class="feed-item' + (state.activeFeedId === feed.id ? ' active' : '') +
+    html += '<div class="feed-item group' + (state.activeFeedId === feed.id ? ' active' : '') +
       '" data-feedid="' + escHtml(feed.id) + '" role="button" tabindex="0">' +
       fav +
-      '<span class="feed-name">' + escHtml(feed.name) + '</span>' +
-      (unread > 0 ? '<span class="feed-count">' + unread + '</span>' : '') +
-      '<button class="feed-remove" data-removeid="' + escHtml(feed.id) + '" aria-label="Sil">✕</button></div>';
+      '<span class="flex-1 text-[13px] truncate">' + escHtml(feed.name) + '</span>' +
+      (unread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + unread + '</span>' : '') +
+      '<button class="feed-remove opacity-0 group-hover:opacity-100 ml-auto p-0.5 text-[#555] hover:text-[#e84444] bg-transparent border-0 cursor-pointer text-xs" data-removeid="' + escHtml(feed.id) + '" aria-label="Sil">✕</button></div>';
   });
 
   container.innerHTML = html;

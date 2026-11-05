@@ -166,13 +166,13 @@ function renderSuggestions(aid) {
 
   list.innerHTML = sugg.map(function(a) {
     const thumb = a.image
-      ? '<div class="sugg-thumb" style="background-image:url(' + escHtml(a.image) + ')"></div>'
-      : '<div class="sugg-thumb sugg-thumb-empty">' + escHtml(a.feedName.charAt(0)) + '</div>';
+      ? '<div class="w-14 h-10 bg-cover bg-center rounded flex-shrink-0 bg-[#111]" style="background-image:url(' + escHtml(a.image) + ')"></div>'
+      : '<div class="w-14 h-10 bg-[#1a1a1a] rounded flex items-center justify-center text-sm text-[#555] flex-shrink-0">' + escHtml(a.feedName.charAt(0)) + '</div>';
     return '<li class="sugg-card" data-id="' + escHtml(a.id) + '" tabindex="0" role="button">' +
       thumb +
-      '<div class="sugg-body">' +
-        '<span class="sugg-source">' + escHtml(a.feedName) + ' · ' + formatDate(a.date) + '</span>' +
-        '<p class="sugg-title">' + escHtml(a.title) + '</p>' +
+      '<div class="flex flex-col min-w-0">' +
+        '<span class="text-[11px] text-[#555]">' + escHtml(a.feedName) + ' · ' + formatDate(a.date) + '</span>' +
+        '<p class="text-[13px] text-[#ddd] leading-snug line-clamp-2">' + escHtml(a.title) + '</p>' +
       '</div></li>';
   }).join('');
 
@@ -194,7 +194,7 @@ function renderSmartTags() {
   Object.keys(tagCounts)
     .sort(function(a, b) { return tagCounts[b] - tagCounts[a]; })
     .forEach(function(tag) {
-      html += '<button class="smart-tag' + (state.activeTag === tag ? ' active' : '') +
+      html += '<button class="smart-tag px-2 py-0.5 rounded-full text-[11px] bg-[#111] border border-[#1a1a1a] text-[#666] hover:border-[#2a2a2a] hover:text-[#ddd] cursor-pointer' + (state.activeTag === tag ? ' active' : '') +
         '" data-tag="' + escHtml(tag) + '">' + escHtml(tag) +
         ' <span style="color:#333">(' + tagCounts[tag] + ')</span></button>';
     });
@@ -215,36 +215,36 @@ function renderFeedList() {
   const container = qs('.feed-list');
   const allUnread = state.articles.filter(function(a) { return !a.read; }).length;
 
-  let html = '<span class="feed-list-label">KAYNAKLAR</span>';
+  let html = '<span class="block text-[10px] text-[#444] uppercase tracking-widest px-2 py-1">KAYNAKLAR</span>';
 
   html += '<div class="feed-item' + (state.activeFeedId === 'home' ? ' active' : '') +
     '" data-feedid="home" role="button" tabindex="0" aria-label="Anasayfa">' +
-    '<span class="feed-favicon-placeholder">⌂</span>' +
-    '<span class="feed-name">Anasayfa</span></div>';
+    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">⌂</span>' +
+    '<span class="flex-1 text-[13px] truncate">Anasayfa</span></div>';
 
   html += '<div class="feed-item' + (state.activeFeedId === 'reels' ? ' active' : '') +
     '" data-feedid="reels" role="button" tabindex="0" aria-label="Reels - Video haberler">' +
-    '<span class="feed-favicon-placeholder" style="font-size:13px">▶</span>' +
-    '<span class="feed-name">Reels</span></div>';
+    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]" style="font-size:13px">▶</span>' +
+    '<span class="flex-1 text-[13px] truncate">Reels</span></div>';
 
   html += '<div class="feed-item' + (state.activeFeedId === 'all' ? ' active' : '') +
     '" data-feedid="all" role="button" tabindex="0" aria-label="Tüm haberler">' +
-    '<span class="feed-favicon-placeholder">☰</span>' +
-    '<span class="feed-name">Tüm Haberler</span>' +
-    (allUnread > 0 ? '<span class="feed-count">' + allUnread + '</span>' : '') + '</div>';
+    '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">☰</span>' +
+    '<span class="flex-1 text-[13px] truncate">Tüm Haberler</span>' +
+    (allUnread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + allUnread + '</span>' : '') + '</div>';
 
   state.feeds.forEach(function(feed) {
     const unread = state.articles.filter(function(a) { return a.feedId === feed.id && !a.read; }).length;
     const fav    = feed.favicon
-      ? '<img class="feed-favicon" src="' + escHtml(feed.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-      : '<span class="feed-favicon-placeholder">' + escHtml(feed.name.charAt(0).toUpperCase()) + '</span>';
+      ? '<img class="feed-favicon w-4 h-4 rounded object-cover" src="' + escHtml(feed.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      : '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded bg-[#1a1a1a] text-[#888]">' + escHtml(feed.name.charAt(0).toUpperCase()) + '</span>';
 
-    html += '<div class="feed-item' + (state.activeFeedId === feed.id ? ' active' : '') +
+    html += '<div class="feed-item group' + (state.activeFeedId === feed.id ? ' active' : '') +
       '" data-feedid="' + escHtml(feed.id) + '" role="button" tabindex="0" aria-label="' + escHtml(feed.name) + '">' +
       fav +
-      '<span class="feed-name">' + escHtml(feed.name) + '</span>' +
-      (unread > 0 ? '<span class="feed-count">' + unread + '</span>' : '') +
-      '<button class="feed-remove" data-removeid="' + escHtml(feed.id) + '" aria-label="Sil" title="Kaynağı sil">✕</button></div>';
+      '<span class="flex-1 text-[13px] truncate">' + escHtml(feed.name) + '</span>' +
+      (unread > 0 ? '<span class="ml-auto text-[11px] text-[#5b9cf6] bg-[#0d1520] border border-[#1a2a40] px-1.5 py-0.5 rounded-full">' + unread + '</span>' : '') +
+      '<button class="feed-remove opacity-0 group-hover:opacity-100 ml-auto p-0.5 text-[#555] hover:text-[#e84444] bg-transparent border-0 cursor-pointer text-xs" data-removeid="' + escHtml(feed.id) + '" aria-label="Sil" title="Kaynağı sil">✕</button></div>';
   });
 
   container.innerHTML = html;
@@ -318,31 +318,31 @@ function renderArticles() {
 
 function articleCardHtml(a, isGrid) {
   const thumb = a.image
-    ? '<img class="article-thumb" src="' + escHtml(a.image) + '" alt="" loading="lazy" onerror="this.remove()">'
+    ? '<img class="article-thumb w-20 h-16 object-cover rounded flex-shrink-0" src="' + escHtml(a.image) + '" alt="" loading="lazy" onerror="this.remove()">'
     : '';
   const tagsHtml = a.tags && a.tags.length
-    ? '<div class="article-tags">' +
-        a.tags.map(function(t) { return '<span class="article-tag">' + escHtml(t) + '</span>'; }).join('') +
+    ? '<div class="flex flex-wrap gap-1 mt-1">' +
+        a.tags.map(function(t) { return '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#111] border border-[#1a1a1a] text-[#555]">' + escHtml(t) + '</span>'; }).join('') +
       '</div>'
     : '';
 
   return '<li class="article-card' + (a.read ? ' read' : '') + '"' +
     ' data-id="' + escHtml(a.id) + '" tabindex="0" role="button" aria-label="' + escHtml(a.title) + '">' +
-    '<span class="article-unread-dot" aria-hidden="true"></span>' +
+    '<span class="absolute left-1 top-4 w-1.5 h-1.5 rounded-full bg-[#5b9cf6]' + (a.read ? ' hidden' : '') + '" aria-hidden="true"></span>' +
     (isGrid && a.image ? thumb : '') +
-    '<div class="article-body">' +
-      '<div class="article-source-row">' +
-        '<img class="article-source-favicon" src="' + escHtml(a.favicon || '') + '" alt="" onerror="this.style.display=\'none\'" loading="lazy">' +
-        '<span class="article-source">' + escHtml(a.feedName) + '</span>' +
-        '<time class="article-date">' + formatDate(a.date) + '</time>' +
+    '<div class="flex-1 min-w-0">' +
+      '<div class="flex items-center gap-1.5 mb-1">' +
+        '<img class="w-3.5 h-3.5 rounded" src="' + escHtml(a.favicon || '') + '" alt="" onerror="this.style.display=\'none\'" loading="lazy">' +
+        '<span class="text-[11px] text-[#666]">' + escHtml(a.feedName) + '</span>' +
+        '<time class="ml-auto text-[11px] text-[#444]">' + formatDate(a.date) + '</time>' +
       '</div>' +
-      '<h3 class="article-title">' + escHtml(a.title) + '</h3>' +
-      (a.desc ? '<p class="article-desc">' + escHtml(a.desc) + '</p>' : '') +
+      '<h3 class="text-[14px] font-medium text-[#ddd] leading-snug mb-1">' + escHtml(a.title) + '</h3>' +
+      (a.desc ? '<p class="text-[13px] text-[#666] line-clamp-2">' + escHtml(a.desc) + '</p>' : '') +
       tagsHtml +
     '</div>' +
     (!isGrid && a.image ? thumb : '') +
-    '<div class="article-actions">' +
-      '<button class="article-star-btn' + (a.starred ? ' starred' : '') + '"' +
+    '<div class="flex-shrink-0 flex flex-col items-center gap-1">' +
+      '<button class="article-star-btn p-1 text-[#444] hover:text-[#e8b840] bg-transparent border-0 cursor-pointer text-base' + (a.starred ? ' starred' : '') + '"' +
         ' data-id="' + escHtml(a.id) + '" title="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '">' +
         (a.starred ? '★' : '☆') +
       '</button>' +
@@ -410,13 +410,13 @@ function renderHomepage() {
 
     // Görsel bölümü
     const imageHtml = a.image
-      ? '<div class="post-image" style="background-image:url(' + escHtml(a.image) + ')" role="img" aria-label="' + escHtml(a.title) + '"></div>'
-      : '<div class="post-image post-image-empty"><span class="post-image-letter">' + escHtml(a.feedName.charAt(0)) + '</span></div>';
+      ? '<div class="w-full aspect-video bg-cover bg-center bg-[#111]" style="background-image:url(' + escHtml(a.image) + ')" role="img" aria-label="' + escHtml(a.title) + '"></div>'
+      : '<div class="w-full aspect-video bg-[#111] flex items-center justify-center"><span class="text-4xl text-[#333]">' + escHtml(a.feedName.charAt(0)) + '</span></div>';
 
     // Etiketler
     const tagsHtml = (a.tags && a.tags.length)
-      ? '<div class="post-tags">' +
-          a.tags.slice(0, 3).map(function(t) { return '<span class="post-tag">' + escHtml(t) + '</span>'; }).join('') +
+      ? '<div class="flex flex-wrap gap-1">' +
+          a.tags.slice(0, 3).map(function(t) { return '<span class="text-[10px] px-2 py-0.5 rounded-full bg-[#111] border border-[#1a1a1a] text-[#555]">' + escHtml(t) + '</span>'; }).join('') +
         '</div>'
       : '';
 
@@ -424,18 +424,18 @@ function renderHomepage() {
       ' data-id="' + escHtml(a.id) + '" tabindex="0" role="article" aria-label="' + escHtml(a.title) + '">' +
 
       // ── Üst: kaynak bilgisi ──
-      '<header class="post-header">' +
-        '<div class="post-avatar">' +
+      '<header class="flex items-center gap-2 p-3">' +
+        '<div class="relative w-8 h-8 flex-shrink-0">' +
           (a.favicon
-            ? '<img class="post-avatar-img" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">'
+            ? '<img class="post-avatar-img w-8 h-8 rounded-full object-cover" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">'
             : '') +
-          '<span class="post-avatar-letter" style="' + (a.favicon ? 'display:none' : '') + '">' + escHtml(a.feedName.charAt(0)) + '</span>' +
+          '<span class="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center text-xs text-[#888]" style="' + (a.favicon ? 'display:none' : '') + '">' + escHtml(a.feedName.charAt(0)) + '</span>' +
         '</div>' +
-        '<div class="post-source-info">' +
-          '<span class="post-source-name">' + escHtml(a.feedName) + '</span>' +
-          '<time class="post-source-date">' + formatDate(a.date) + '</time>' +
+        '<div class="flex flex-col min-w-0">' +
+          '<span class="text-[13px] font-medium text-[#ddd] truncate">' + escHtml(a.feedName) + '</span>' +
+          '<time class="text-[11px] text-[#555]">' + formatDate(a.date) + '</time>' +
         '</div>' +
-        '<button class="post-star-btn' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '" title="Yıldız">' +
+        '<button class="post-star-btn ml-auto p-1 text-[#444] hover:text-[#e8b840] bg-transparent border-0 cursor-pointer text-base' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '" title="Yıldız">' +
           (a.starred ? '★' : '☆') +
         '</button>' +
       '</header>' +
@@ -444,17 +444,17 @@ function renderHomepage() {
       imageHtml +
 
       // ── Alt: başlık + aksiyon ──
-      '<div class="post-body">' +
-        '<h2 class="post-title">' + escHtml(a.title) + '</h2>' +
-        (a.desc ? '<p class="post-desc">' + escHtml(a.desc) + '</p>' : '') +
+      '<div class="p-3 flex flex-col gap-2">' +
+        '<h2 class="text-[15px] font-semibold text-[#ddd] leading-snug">' + escHtml(a.title) + '</h2>' +
+        (a.desc ? '<p class="text-[13px] text-[#666] line-clamp-3">' + escHtml(a.desc) + '</p>' : '') +
         tagsHtml +
-        '<div class="post-actions">' +
-          '<button class="post-action-btn post-read-btn" data-id="' + escHtml(a.id) + '" aria-label="Oku">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
+        '<div class="flex gap-2 mt-1">' +
+          '<button class="post-action-btn post-read-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-[#888] bg-[#111] border border-[#1a1a1a] hover:text-[#ddd] hover:border-[#2a2a2a] cursor-pointer" data-id="' + escHtml(a.id) + '" aria-label="Oku">' +
+            '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
             '<span>Oku</span>' +
           '</button>' +
-          '<a class="post-action-btn post-open-btn" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener noreferrer" aria-label="Orijinalde aç">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+          '<a class="post-action-btn post-open-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-[#888] bg-[#111] border border-[#1a1a1a] hover:text-[#ddd] hover:border-[#2a2a2a] cursor-pointer no-underline" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener noreferrer" aria-label="Orijinalde aç">' +
+            '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '<span>Aç</span>' +
           '</a>' +
         '</div>' +
@@ -531,17 +531,17 @@ function renderAnalytics() {
     .sort(function(a, b) { return feedCounts[b] - feedCounts[a]; })
     .forEach(function(name) {
       const pct = Math.round((feedCounts[name] / maxCount) * 100);
-      barsHtml += '<div class="source-bar-item">' +
-        '<div class="source-bar-label"><span>' + escHtml(name) + '</span><span>' + feedCounts[name] + '</span></div>' +
-        '<div class="source-bar-track"><div class="source-bar-fill" style="width:' + pct + '%"></div></div></div>';
+      barsHtml += '<div class="flex flex-col gap-1">' +
+        '<div class="flex items-center justify-between text-[11px]"><span class="text-[#888] truncate">' + escHtml(name) + '</span><span class="text-[#555] ml-2">' + feedCounts[name] + '</span></div>' +
+        '<div class="w-full h-1.5 bg-[#111] rounded-full overflow-hidden"><div class="h-full bg-[#5b9cf6] rounded-full" style="width:' + pct + '%"></div></div></div>';
     });
   qs('.source-bars', panel).innerHTML = barsHtml || '<p style="font-size:11px;color:#333">Veri yok</p>';
 
   const topList = state.articles.filter(function(a) { return a.read; }).slice(0, 5);
   qs('.top-articles', panel).innerHTML = topList.map(function(a, i) {
-    return '<li class="top-article-item">' +
-      '<span class="top-article-rank">' + (i + 1) + '.</span>' +
-      '<span class="top-article-title">' + escHtml(a.title) + '</span></li>';
+    return '<li class="flex items-start gap-2 py-1">' +
+      '<span class="text-[11px] text-[#555] w-4 flex-shrink-0">' + (i + 1) + '.</span>' +
+      '<span class="text-[12px] text-[#888] leading-snug">' + escHtml(a.title) + '</span></li>';
   }).join('') || '<p style="font-size:11px;color:#333">Henüz okunmuş makale yok</p>';
 
   // Kelime bulutu
@@ -557,7 +557,8 @@ function renderAnalytics() {
   const topWords = Object.keys(wordFreq).sort(function(a, b) { return wordFreq[b] - wordFreq[a]; }).slice(0, 24);
   const maxW     = wordFreq[topWords[0]] || 1;
   qs('.word-cloud', panel).innerHTML = topWords.map(function(w) {
-    return '<span class="word-item' + (wordFreq[w] >= maxW * 0.5 ? ' big' : '') +
+    const isBig = wordFreq[w] >= maxW * 0.5;
+    return '<span class="word-item px-2 py-0.5 rounded-full text-[11px] bg-[#111] border border-[#1a1a1a] text-[#666] hover:border-[#2a2a2a] hover:text-[#ddd] cursor-pointer' + (isBig ? ' text-[13px] font-medium text-[#888]' : '') +
       '" data-word="' + escHtml(w) + '">' + escHtml(w) + '</span>';
   }).join('') || '<p style="font-size:11px;color:#333">Veri yok</p>';
 
@@ -580,12 +581,12 @@ function renderAnalytics() {
   const topTag = Object.keys(tagCounts).sort(function(a, b) { return tagCounts[b] - tagCounts[a]; })[0] || '—';
 
   qs('.read-stats', panel).innerHTML =
-    '<div class="stat-row"><span class="stat-label">Toplam Makale</span><span class="stat-value">' + total + '</span></div>' +
-    '<div class="stat-row"><span class="stat-label">Okunmuş</span><span class="stat-value">' + readCount + '</span></div>' +
-    '<div class="stat-row"><span class="stat-label">Okunmamış</span><span class="stat-value">' + (total - readCount) + '</span></div>' +
-    '<div class="stat-row"><span class="stat-label">Notlar</span><span class="stat-value">' + notesCount + '</span></div>' +
-    '<div class="stat-row"><span class="stat-label">Vurgular</span><span class="stat-value">' + hlCount + '</span></div>' +
-    '<div class="stat-row"><span class="stat-label">Öne Çıkan Konu</span><span class="stat-value">' + escHtml(topTag) + '</span></div>';
+    '<div class="flex items-center justify-between py-1.5 border-b border-[#111]"><span class="text-[12px] text-[#666]">Toplam Makale</span><span class="text-[12px] font-medium text-[#ddd]">' + total + '</span></div>' +
+    '<div class="flex items-center justify-between py-1.5 border-b border-[#111]"><span class="text-[12px] text-[#666]">Okunmuş</span><span class="text-[12px] font-medium text-[#ddd]">' + readCount + '</span></div>' +
+    '<div class="flex items-center justify-between py-1.5 border-b border-[#111]"><span class="text-[12px] text-[#666]">Okunmamış</span><span class="text-[12px] font-medium text-[#ddd]">' + (total - readCount) + '</span></div>' +
+    '<div class="flex items-center justify-between py-1.5 border-b border-[#111]"><span class="text-[12px] text-[#666]">Notlar</span><span class="text-[12px] font-medium text-[#ddd]">' + notesCount + '</span></div>' +
+    '<div class="flex items-center justify-between py-1.5 border-b border-[#111]"><span class="text-[12px] text-[#666]">Vurgular</span><span class="text-[12px] font-medium text-[#ddd]">' + hlCount + '</span></div>' +
+    '<div class="flex items-center justify-between py-1.5"><span class="text-[12px] text-[#666]">Öne Çıkan Konu</span><span class="text-[12px] font-medium text-[#ddd]">' + escHtml(topTag) + '</span></div>';
 }
 
 // ── YARDIMCI UI ────────────────────────────────────────────────────────────
@@ -708,30 +709,27 @@ function renderReelsEmpty(emptyEl) {
   };
 
   var suggestHtml = suggested.length
-    ? '<div class="reels-suggest-grid">' +
+    ? '<div class="grid grid-cols-2 gap-2 mt-4 w-full max-w-sm">' +
         suggested.map(function(ch) {
           var color = catColors[ch.category] || '#5b9cf6';
-          var thumb = 'https://img.youtube.com/vi/0/mqdefault.jpg'; // generic fallback
-          // Kanal thumbnail: YouTube resmi endpoint
-          var chThumb = 'https://i.ytimg.com/vi/0/default.jpg';
-          return '<button class="reels-suggest-card" data-url="' + escHtml(ch.url) + '" aria-label="' + escHtml(ch.name) + ' ekle">' +
-            '<div class="reels-suggest-art" style="background:' + color + '22;border-color:' + color + '44">' +
-              '<svg class="reels-suggest-play" viewBox="0 0 24 24" fill="' + color + '" aria-hidden="true"><path d="M6 3l12 9-12 9V3z"/></svg>' +
+          return '<button class="reels-suggest-card flex items-center gap-2 p-2 rounded-lg bg-[#111] border border-[#1a1a1a] cursor-pointer hover:border-[#2a2a2a] w-full" data-url="' + escHtml(ch.url) + '" aria-label="' + escHtml(ch.name) + ' ekle">' +
+            '<div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 border" style="background:' + color + '22;border-color:' + color + '44">' +
+              '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="' + color + '" aria-hidden="true"><path d="M6 3l12 9-12 9V3z"/></svg>' +
             '</div>' +
-            '<div class="reels-suggest-info">' +
-              '<span class="reels-suggest-name">' + escHtml(ch.name) + '</span>' +
-              '<span class="reels-suggest-cat" style="color:' + color + '">' + escHtml(ch.category) + '</span>' +
+            '<div class="flex flex-col min-w-0 text-left">' +
+              '<span class="text-[12px] font-medium text-[#ddd] truncate">' + escHtml(ch.name) + '</span>' +
+              '<span class="text-[10px]" style="color:' + color + '">' + escHtml(ch.category) + '</span>' +
             '</div>' +
-            '<span class="reels-suggest-add" aria-hidden="true">+</span>' +
+            '<span class="ml-auto text-[16px] text-[#555] flex-shrink-0" aria-hidden="true">+</span>' +
           '</button>';
         }).join('') +
       '</div>'
     : '';
 
   emptyEl.innerHTML =
-    '<div class="reels-empty-icon">▶</div>' +
-    '<p class="reels-empty-title">Video bulunamadı</p>' +
-    '<p class="reels-empty-desc">Ekli kaynaklarda video içerik yok.<br>Aşağıdan bir kanal ekleyerek başlayabilirsin.</p>' +
+    '<div class="text-5xl text-[#333] mb-4">▶</div>' +
+    '<p class="text-[15px] font-medium text-[#666] mb-1">Video bulunamadı</p>' +
+    '<p class="text-[13px] text-[#444] mb-4">Ekli kaynaklarda video içerik yok.<br>Aşağıdan bir kanal ekleyerek başlayabilirsin.</p>' +
     suggestHtml;
 
   emptyEl.hidden = false;
@@ -786,77 +784,82 @@ function renderReels() {
     var v = item.video;
 
     var faviconHtml = a.favicon
-      ? '<img class="reel-favicon" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-      : '<span class="reel-favicon-placeholder">' + escHtml(a.feedName.charAt(0)) + '</span>';
+      ? '<img class="w-5 h-5 rounded object-cover" src="' + escHtml(a.favicon) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      : '<span class="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-[#1a1a1a] text-[#888]">' + escHtml(a.feedName.charAt(0)) + '</span>';
 
     var thumbUrl = v.thumb || '';
     var mediaHtml;
     if (v.type === 'youtube') {
       mediaHtml =
-        '<div class="reel-media" data-ytid="' + escHtml(v.src) + '" data-type="youtube">' +
-          '<div class="reel-thumb-wrap">' +
+        '<div class="reel-media relative w-full flex-1" data-ytid="' + escHtml(v.src) + '" data-type="youtube">' +
+          '<div class="reel-thumb-wrap absolute inset-0 flex items-center justify-center">' +
             (thumbUrl
-              ? '<img class="reel-thumb" src="' + escHtml(thumbUrl) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
-              : '<div class="reel-thumb reel-thumb-empty"></div>') +
-            '<button class="reel-play-btn" aria-label="Oynat">' +
-              '<svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+              ? '<img class="w-full h-full object-cover" src="' + escHtml(thumbUrl) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
+              : '<div class="w-full h-full bg-[#0a0a0a]"></div>') +
+            '<button class="reel-play-btn absolute inset-0 flex items-center justify-center" aria-label="Oynat">' +
+              '<span class="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center border border-white/20 backdrop-blur-sm">' +
+                '<svg class="w-8 h-8 ml-1" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+              '</span>' +
             '</button>' +
           '</div>' +
-          '<div class="reel-player" hidden></div>' +
+          '<div class="reel-player absolute inset-0" hidden>' +
+            '<iframe class="reel-iframe w-full h-full border-0"></iframe>' +
+          '</div>' +
         '</div>';
     } else if (v.type === 'video') {
       mediaHtml =
-        '<div class="reel-media" data-type="video">' +
-          '<div class="reel-thumb-wrap">' +
+        '<div class="reel-media relative w-full flex-1" data-type="video">' +
+          '<div class="reel-thumb-wrap absolute inset-0 flex items-center justify-center">' +
             (thumbUrl
-              ? '<img class="reel-thumb" src="' + escHtml(thumbUrl) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
-              : '<div class="reel-thumb reel-thumb-empty"></div>') +
-            '<button class="reel-play-btn" aria-label="Oynat">' +
-              '<svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+              ? '<img class="w-full h-full object-cover" src="' + escHtml(thumbUrl) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
+              : '<div class="w-full h-full bg-[#0a0a0a]"></div>') +
+            '<button class="reel-play-btn absolute inset-0 flex items-center justify-center" aria-label="Oynat">' +
+              '<span class="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center border border-white/20 backdrop-blur-sm">' +
+                '<svg class="w-8 h-8 ml-1" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+              '</span>' +
             '</button>' +
           '</div>' +
-          '<div class="reel-player" hidden>' +
-            '<video class="reel-video-el" src="' + escHtml(v.src) + '" controls playsinline preload="none"></video>' +
+          '<div class="reel-player absolute inset-0" hidden>' +
+            '<video class="reel-video-el w-full h-full object-cover" src="' + escHtml(v.src) + '" controls playsinline preload="none"></video>' +
           '</div>' +
         '</div>';
     } else {
-      // Video yok — büyük thumbnail placeholder
       mediaHtml =
-        '<div class="reel-media" data-type="none">' +
-          '<div class="reel-thumb-wrap">' +
+        '<div class="reel-media relative w-full flex-1" data-type="none">' +
+          '<div class="reel-thumb-wrap absolute inset-0 flex items-center justify-center">' +
             (a.image
-              ? '<img class="reel-thumb" src="' + escHtml(a.image) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
-              : '<div class="reel-thumb reel-thumb-empty"></div>') +
+              ? '<img class="w-full h-full object-cover" src="' + escHtml(a.image) + '" alt="' + escHtml(a.title) + '" loading="lazy">'
+              : '<div class="w-full h-full bg-[#0a0a0a]"></div>') +
             '<div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#aaa;font-size:11px;padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px)">Video yok</div>' +
           '</div>' +
         '</div>';
     }
 
     var tagsHtml = (a.tags && a.tags.length)
-      ? a.tags.slice(0, 3).map(function(t) { return '<span class="reel-tag">' + escHtml(t) + '</span>'; }).join('')
+      ? a.tags.slice(0, 3).map(function(t) { return '<span class="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/70">' + escHtml(t) + '</span>'; }).join('')
       : '';
 
     return '<div class="reel-item' + (idx === 0 ? ' reel-active' : '') + '" data-id="' + escHtml(a.id) + '" data-idx="' + idx + '" role="listitem">' +
       mediaHtml +
-      '<div class="reel-info">' +
-        '<div class="reel-source-row">' +
+      '<div class="reel-info absolute bottom-0 left-0 right-0 p-4 pb-6 bg-gradient-to-t from-black/90 to-transparent">' +
+        '<div class="flex items-center gap-2 mb-2">' +
           faviconHtml +
-          '<span class="reel-source-name">' + escHtml(a.feedName) + '</span>' +
-          '<time class="reel-date">' + formatDate(a.date) + '</time>' +
+          '<span class="text-[13px] font-medium text-white/90">' + escHtml(a.feedName) + '</span>' +
+          '<time class="ml-auto text-[11px] text-white/50">' + formatDate(a.date) + '</time>' +
         '</div>' +
-        '<h3 class="reel-title">' + escHtml(a.title) + '</h3>' +
-        (a.desc ? '<p class="reel-desc">' + escHtml(a.desc) + '</p>' : '') +
-        (tagsHtml ? '<div class="reel-tags">' + tagsHtml + '</div>' : '') +
-        '<div class="reel-actions">' +
-          '<button class="reel-action-btn reel-read-btn" data-id="' + escHtml(a.id) + '" aria-label="Haberi oku">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
+        '<h3 class="text-[16px] font-semibold text-white leading-snug mb-1">' + escHtml(a.title) + '</h3>' +
+        (a.desc ? '<p class="text-[13px] text-white/70 line-clamp-2 mb-2">' + escHtml(a.desc) + '</p>' : '') +
+        (tagsHtml ? '<div class="flex flex-wrap gap-1 mb-3">' + tagsHtml + '</div>' : '') +
+        '<div class="flex gap-2">' +
+          '<button class="reel-action-btn reel-read-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-white bg-white/10 border border-white/20 hover:bg-white/20 cursor-pointer backdrop-blur-sm" data-id="' + escHtml(a.id) + '" aria-label="Haberi oku">' +
+            '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
             'Haberi Oku' +
           '</button>' +
-          '<a class="reel-action-btn reel-open-btn" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener noreferrer" aria-label="Kaynakta aç">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+          '<a class="reel-action-btn reel-open-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] text-white bg-white/10 border border-white/20 hover:bg-white/20 cursor-pointer backdrop-blur-sm no-underline" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener noreferrer" aria-label="Kaynakta aç">' +
+            '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             'Aç' +
           '</a>' +
-          '<button class="reel-star-btn' + (a.starred ? ' starred' : '') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '">' +
+          '<button class="reel-star-btn flex items-center justify-center w-9 h-9 rounded-lg text-[16px] bg-white/10 border border-white/20 hover:bg-white/20 cursor-pointer backdrop-blur-sm' + (a.starred ? ' starred text-[#e8b840]' : ' text-white/70') + '" data-id="' + escHtml(a.id) + '" aria-label="' + (a.starred ? 'Yıldızı kaldır' : 'Yıldız ekle') + '">' +
             (a.starred ? '★' : '☆') +
           '</button>' +
         '</div>' +
@@ -1032,7 +1035,7 @@ function renderReels() {
       if (type === 'youtube') {
         var ytId = mediaDiv.dataset.ytid;
         playerDiv.innerHTML =
-          '<iframe class="reel-iframe" ' +
+          '<iframe class="reel-iframe w-full h-full border-0" ' +
           'src="https://www.youtube.com/embed/' + escHtml(ytId) + '?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" ' +
           'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
           'allowfullscreen title="Video player"></iframe>';
