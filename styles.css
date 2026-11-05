@@ -1238,6 +1238,130 @@ body.hide-images .hp-card-first .hp-card-thumb { display: none; }
   /* Öneri kartları */
   .suggestions-section { max-width: 100%; }
   .sugg-thumb { width: 40px; height: 32px; }
+
+  /* ── MOBİL TAB BAR ────────────────────────────────────────────── */
+  /* Sidebar'ı tamamen gizle, hamburger menüyü de gizle */
+  aside         { display: none !important; }
+  .overlay      { display: none !important; }
+  .menu-btn     { display: none !important; }
+
+  /* Main alanı tab bar yüksekliği kadar alta ittir */
+  .main { padding-bottom: 62px; }
+
+  /* Tab bar — ekranın altında sabit */
+  .mobile-tabs {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 62px;
+    background: #0a0a0a;
+    border-top: 1px solid #1a1a1a;
+    z-index: 90;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .tab-btn {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    background: none; border: none;
+    color: #444; cursor: pointer;
+    padding: 6px 0 4px;
+    transition: color .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-btn:active { background: #111; }
+  .tab-btn.active { color: var(--accent, #5b9cf6); }
+
+  .tab-icon {
+    width: 22px; height: 22px;
+    stroke: currentColor;
+    flex-shrink: 0;
+  }
+  .tab-label {
+    font-size: 10px; font-weight: 500;
+    letter-spacing: .02em;
+  }
+
+  /* ── MOBİL PROFİL VIEW ────────────────────────────────────────── */
+  .mobile-profile-view {
+    position: fixed; inset: 0 0 62px 0;
+    background: #000;
+    overflow-y: auto;
+    z-index: 80;
+  }
+
+  .mobile-profile-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid #1a1a1a;
+    flex-shrink: 0;
+    position: sticky; top: 0;
+    background: #000; z-index: 2;
+  }
+  .mobile-profile-header .logo-text { font-size: 16px; font-weight: 700; }
+
+  .mobile-profile-body { flex: 1; padding: 0 0 16px; }
+
+  .mobile-profile-section {
+    padding: 14px 16px 0;
+    border-bottom: 1px solid #111;
+    margin-bottom: 4px;
+  }
+  .mobile-profile-section:last-child { border-bottom: none; }
+
+  .mobile-section-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: #333; margin-bottom: 10px;
+  }
+
+  /* Mobil feed ekleme */
+  .mobile-add-wrap { margin-bottom: 10px; }
+  .feed-input-mobile { width: 100%; }
+
+  /* Mobil quick-add grid 3 kolon */
+  .mobile-quick-grid { margin-bottom: 14px; }
+
+  /* Mobil feed listesi */
+  .feed-list-mobile {
+    display: flex; flex-direction: column; gap: 2px;
+    padding-bottom: 12px;
+  }
+  /* feed-item stilleri miras alır, sadece overflow düzelt */
+  .feed-list-mobile .feed-item { border-radius: 8px; }
+
+  /* Mobil io butonlar */
+  .mobile-io-section { padding-bottom: 14px; }
+  .mobile-io-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 10px;
+    background: none; border: 1px solid #1a1a1a;
+    border-radius: 8px; color: #555;
+    font-size: 13px; font-family: 'Inter', sans-serif;
+    cursor: pointer; margin-bottom: 8px;
+    text-align: center;
+  }
+  .mobile-io-btn:active { background: #111; }
+  .mobile-io-row { display: flex; gap: 8px; margin-bottom: 0; }
+  .mobile-io-row .mobile-io-btn { flex: 1; margin-bottom: 0; }
+  .import-input-mobile { display: none; }
+
+  /* Profil view'deyken main'i gizle */
+  body.tab-profile .main { display: none; }
+  body.tab-discover .homepage-view { display: none !important; }
+  body.tab-discover .articles-wrap { display: flex !important; }
+  body.tab-discover .filter-bar    { display: flex !important; }
+}
+
+/* Tab bar ve profil view — varsayılan olarak masaüstünde gizli */
+.mobile-tabs         { display: none; }
+.mobile-profile-view { display: none; }
+
+/* Mobilde göster */
+@media (max-width: 640px) {
+  .mobile-tabs { display: flex; }
+  .mobile-profile-view { display: flex; flex-direction: column; }
+  .mobile-profile-view[hidden] { display: none !important; }
 }
 
 /* ================================================================

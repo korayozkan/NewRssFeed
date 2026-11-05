@@ -25,7 +25,9 @@ function init() {
 
   bindEvents();
   bindSettingsEvents();
+  bindTabEvents();
   applyAllSettings();
+  initTabs();
   renderFeedList();
   renderSmartTags();
 

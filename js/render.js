@@ -211,6 +211,7 @@ function renderSmartTags() {
 
 // ── FEED LİSTESİ ───────────────────────────────────────────────────────────
 function renderFeedList() {
+  // Masaüstü sidebar listesi
   const container = qs('.feed-list');
   const allUnread = state.articles.filter(function(a) { return !a.read; }).length;
 
@@ -260,6 +261,9 @@ function renderFeedList() {
   qsa('.feed-remove', container).forEach(function(btn) {
     btn.addEventListener('click', function(e) { e.stopPropagation(); removeFeed(btn.dataset.removeid); });
   });
+
+  // Mobil profil view feed listesini de güncelle
+  if (typeof renderMobileFeedList === 'function') renderMobileFeedList();
 }
 
 // ── MAKALE LİSTESİ ─────────────────────────────────────────────────────────

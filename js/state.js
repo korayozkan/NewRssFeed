@@ -111,6 +111,9 @@ const state = {
   loading:     false,
   activeColor: '#e8b840',
 
+  // ── Sekme navigasyonu (mobil, geçici) ───────────────────────────────────
+  activeTab:   'home',
+
   // ── Uygulama ayarları (kalıcı) ───────────────────────────────────────────
   settings: {
     theme:          'dark',    // 'dark' | 'light' | 'system'
