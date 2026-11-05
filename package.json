@@ -1,0 +1,21 @@
+{
+  "name": "newrssfeed",
+  "version": "1.0.0",
+  "description": "Everything you follow, in one place.",
+  "private": true,
+  "scripts": {
+    "lint:html": "htmlhint index.html --config .htmlhintrc",
+    "lint:css": "stylelint styles.css --config .stylelintrc.json",
+    "lint": "npm run lint:html && npm run lint:css"
+  },
+  "devDependencies": {
+    "htmlhint": "^1.1.4",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/korayozkan/NewRssFeed.git"
+  },
+  "license": "MIT"
+}
