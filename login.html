@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giriş Yap — NewRssFeed</title>
+  <link rel="stylesheet" href="dist/output.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="font-sans bg-black text-[#dddddd] min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-sm bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-8 flex flex-col gap-6">
+
+    <!-- Başlık -->
+    <div class="text-center">
+      <h1 class="text-xl font-semibold text-[#ddd]">NewRssFeed</h1>
+      <p class="text-[13px] text-[#555] mt-1">Hesabına giriş yap</p>
+    </div>
+
+    <!-- Hata / Bilgi mesajı -->
+    <div id="msg" class="hidden text-[13px] text-center rounded-lg py-2 px-3" role="alert" aria-live="polite"></div>
+
+    <!-- Email + Şifre formu -->
+    <form id="login-form" class="flex flex-col gap-4" novalidate>
+      <div class="flex flex-col gap-1.5">
+        <label for="email" class="text-[12px] text-[#888]">E-posta</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          required
+          placeholder="ornek@email.com"
+          class="bg-[#111] border border-[#222] rounded-lg text-[#ddd] text-[14px] px-3 py-2 outline-none placeholder:text-[#444] focus:border-[#5b9cf6] transition-colors"
+        />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between">
+          <label for="password" class="text-[12px] text-[#888]">Şifre</label>
+          <button
+            type="button"
+            id="forgot-btn"
+            class="text-[12px] text-[#5b9cf6] hover:text-[#7baaff] bg-transparent border-0 cursor-pointer"
+          >Şifremi unuttum</button>
+        </div>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          placeholder="Şifreniz"
+          class="bg-[#111] border border-[#222] rounded-lg text-[#ddd] text-[14px] px-3 py-2 outline-none placeholder:text-[#444] focus:border-[#5b9cf6] transition-colors"
+        />
+      </div>
+      <button
+        type="submit"
+        id="login-btn"
+        class="w-full py-2.5 rounded-lg bg-[#5b9cf6] hover:bg-[#4a8ae4] text-white text-[14px] font-medium border-0 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+      >Giriş Yap</button>
+    </form>
+
+    <!-- Ayırıcı -->
+    <div class="flex items-center gap-3">
+      <div class="flex-1 h-px bg-[#1a1a1a]"></div>
+      <span class="text-[11px] text-[#444]">veya</span>
+      <div class="flex-1 h-px bg-[#1a1a1a]"></div>
+    </div>
+
+    <!-- OAuth Butonları -->
+    <div class="flex flex-col gap-3">
+      <button
+        id="google-btn"
+        type="button"
+        class="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-lg border border-[#222] bg-transparent text-[#ddd] text-[14px] hover:bg-[#111] hover:border-[#333] cursor-pointer transition-colors"
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Google ile Giriş Yap
+      </button>
+      <button
+        id="github-btn"
+        type="button"
+        class="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-lg border border-[#222] bg-transparent text-[#ddd] text-[14px] hover:bg-[#111] hover:border-[#333] cursor-pointer transition-colors"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub ile Giriş Yap
+      </button>
+    </div>
+
+    <!-- Kayıt ol linki -->
+    <p class="text-center text-[13px] text-[#555]">
+      Hesabın yok mu?
+      <a href="register.html" class="text-[#5b9cf6] hover:text-[#7baaff] no-underline">Kayıt ol</a>
+    </p>
+
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script>
+    (function () {
+      var _client = null;
+
+      function getClient() {
+        if (_client) return _client;
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+          showMsg('Supabase yapılandırılmamış. js/config.js dosyasını doldurun.', 'error');
+          return null;
+        }
+        _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return _client;
+      }
+
+      function showMsg(text, type) {
+        var el = document.getElementById('msg');
+        el.textContent = text;
+        el.className = 'text-[13px] text-center rounded-lg py-2 px-3 ' +
+          (type === 'error' ? 'bg-[#1a0808] text-[#e84444] border border-[#3a1a1a]' : 'bg-[#0d1520] text-[#5b9cf6] border border-[#1a2a40]');
+        el.hidden = false;
+      }
+
+      function setLoading(loading) {
+        var btn = document.getElementById('login-btn');
+        btn.disabled = loading;
+        btn.textContent = loading ? 'Giriş yapılıyor…' : 'Giriş Yap';
+      }
+
+      document.getElementById('login-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var email    = document.getElementById('email').value.trim();
+        var password = document.getElementById('password').value;
+        if (!email || !password) { showMsg('E-posta ve şifre zorunludur.', 'error'); return; }
+        var client = getClient();
+        if (!client) return;
+        setLoading(true);
+        try {
+          var result = await client.auth.signInWithPassword({ email: email, password: password });
+          if (result.error) { showMsg(result.error.message, 'error'); }
+          else { window.location.href = 'index.html'; }
+        } catch (err) {
+          showMsg(err.message || 'Bilinmeyen hata', 'error');
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      document.getElementById('forgot-btn').addEventListener('click', async function () {
+        var email = document.getElementById('email').value.trim();
+        if (!email) { showMsg('Şifre sıfırlama için e-posta adresinizi girin.', 'error'); return; }
+        var client = getClient();
+        if (!client) return;
+        try {
+          var result = await client.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/index.html',
+          });
+          if (result.error) { showMsg(result.error.message, 'error'); }
+          else { showMsg('Şifre sıfırlama e-postası gönderildi. Gelen kutunuzu kontrol edin.', 'info'); }
+        } catch (err) {
+          showMsg(err.message || 'Hata', 'error');
+        }
+      });
+
+      document.getElementById('google-btn').addEventListener('click', async function () {
+        var client = getClient();
+        if (!client) return;
+        try {
+          await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin + '/index.html' },
+          });
+        } catch (err) {
+          showMsg(err.message || 'Google ile giriş başarısız', 'error');
+        }
+      });
+
+      document.getElementById('github-btn').addEventListener('click', async function () {
+        var client = getClient();
+        if (!client) return;
+        try {
+          await client.auth.signInWithOAuth({
+            provider: 'github',
+            options: { redirectTo: window.location.origin + '/index.html' },
+          });
+        } catch (err) {
+          showMsg(err.message || 'GitHub ile giriş başarısız', 'error');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

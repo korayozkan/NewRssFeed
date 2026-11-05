@@ -5,21 +5,23 @@
 // İlk başarılı yanıt döndürülür; hata durumunda bir sonraki proxy'e geçilir.
 
 function buildProxies(feedUrl) {
-  const enc = encodeURIComponent(feedUrl);
-  return [
-    // rss2json — JSON döner, en kolay parse
-    { url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'json' },
-    // allorigins — wildcard CORS, { contents: xml }
-    { url: 'https://api.allorigins.win/raw?url=' + enc,           type: 'xml'  },
-    // corsproxy.io — wildcard CORS, ham XML
-    { url: 'https://corsproxy.io/?' + enc,                        type: 'xml'  },
-    // thingproxy — cors-anywhere klonu
-    { url: 'https://thingproxy.freeboard.io/fetch/' + feedUrl,   type: 'xml'  },
-    // codetabs — JSON wrapper { contents }
-    { url: 'https://api.codetabs.com/v1/proxy?quest=' + enc,     type: 'xml'  },
-    // cors.eu.org — son çare
-    { url: 'https://cors.eu.org/' + feedUrl,                     type: 'xml'  },
-  ];
+  var enc = encodeURIComponent(feedUrl);
+  var proxies = [];
+
+  // Cloudflare Worker (konfigüre edilmişse birinci sıraya al)
+  if (typeof CF_WORKER_URL !== 'undefined' && CF_WORKER_URL) {
+    proxies.push({ url: CF_WORKER_URL + '/rss?url=' + enc, type: 'xml' });
+  }
+
+  // Mevcut üçüncü taraf proxy'ler (fallback)
+  proxies.push({ url: 'https://api.rss2json.com/v1/api.json?rss_url=' + enc, type: 'json' });
+  proxies.push({ url: 'https://api.allorigins.win/raw?url=' + enc,           type: 'xml'  });
+  proxies.push({ url: 'https://corsproxy.io/?' + enc,                        type: 'xml'  });
+  proxies.push({ url: 'https://thingproxy.freeboard.io/fetch/' + feedUrl,   type: 'xml'  });
+  proxies.push({ url: 'https://api.codetabs.com/v1/proxy?quest=' + enc,     type: 'xml'  });
+  proxies.push({ url: 'https://cors.eu.org/' + feedUrl,                     type: 'xml'  });
+
+  return proxies;
 }
 
 // ── ABORT SIGNAL YARDIMCISI ────────────────────────────────────────────────

@@ -265,3 +265,19 @@ const SUGGESTED_VIDEO_FEEDS = [
     channelId: 'UChqUTb7kYRX8-EiaN3XFrSQ',
   },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. SUPABASE & CLOUDFLARE YAPILANDIRMASİ
+// ─────────────────────────────────────────────────────────────────────────────
+// Bu değerleri Supabase dashboard'dan kopyalayın:
+//   https://supabase.com/dashboard → Project Settings → API
+// CF_WORKER_URL: Cloudflare Worker deploy ettikten sonra buraya yazın.
+
+/** @type {string} Supabase proje URL'si — ör: https://xxxx.supabase.co */
+const SUPABASE_URL = '';
+
+/** @type {string} Supabase anon/public key */
+const SUPABASE_ANON_KEY = '';
+
+/** @type {string} Cloudflare Worker RSS proxy URL'si — ör: https://rss-proxy.myworker.workers.dev */
+const CF_WORKER_URL = '';
