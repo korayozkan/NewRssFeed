@@ -111,6 +111,18 @@ const state = {
   loading:     false,
   activeColor: '#e8b840',
 
+  // ── Uygulama ayarları (kalıcı) ───────────────────────────────────────────
+  settings: {
+    theme:          'dark',    // 'dark' | 'light' | 'system'
+    accentColor:    '#5b9cf6', // Vurgu rengi (hex)
+    autoRefresh:    false,     // Otomatik yenileme
+    refreshInterval: 15,       // Dakika cinsinden yenileme aralığı
+    markReadOnOpen: true,      // Makale açılınca okundu işaretle
+    showImages:     true,      // Makale kartlarında görseli göster
+    compactMode:    false,     // Kompakt kart görünümü
+    openInNewTab:   true,      // Orijinali yeni sekmede aç
+  },
+
   // ── Tipografi (kalıcı) ───────────────────────────────────────────────────
   typo: {
     font:   'inter',

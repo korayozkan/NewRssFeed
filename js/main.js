@@ -24,6 +24,8 @@ function init() {
   }
 
   bindEvents();
+  bindSettingsEvents();
+  applyAllSettings();
   renderFeedList();
   renderSmartTags();
 

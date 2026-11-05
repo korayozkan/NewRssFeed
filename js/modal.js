@@ -6,14 +6,15 @@ function openModal(aid) {
   const a = state.articles.find(function(x) { return x.id === aid; });
   if (!a) return;
 
-  markRead(aid);
+  if (state.settings.markReadOnOpen !== false) markRead(aid);
 
   const backdrop = qs('.modal-backdrop');
   backdrop.dataset.aid = aid;
 
   qs('.modal-title',    backdrop).textContent = a.title;
   qs('.modal-meta',     backdrop).textContent = a.feedName + ' · ' + formatDate(a.date);
-  qs('.modal-open-btn', backdrop).href        = a.url || '#';
+  qs('.modal-open-btn', backdrop).href   = a.url || '#';
+  qs('.modal-open-btn', backdrop).target = state.settings.openInNewTab !== false ? '_blank' : '_self';
 
   const sanitized = sanitize(a.content || '<p>' + escHtml(a.desc) + '</p>');
   const contentEl = qs('.modal-content', backdrop);

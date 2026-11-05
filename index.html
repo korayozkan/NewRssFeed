@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -114,6 +114,7 @@
           <button class="icon-btn layout-btn layout-list active" aria-pressed="true" aria-label="Liste görünümü" title="Liste görünümü">☰</button>
           <button class="icon-btn layout-btn layout-grid" aria-pressed="false" aria-label="Kart görünümü" title="Kart görünümü">⊞</button>
         </div>
+        <button class="icon-btn settings-btn" aria-label="Ayarlar" title="Ayarlar">⚙</button>
       </div>
     </header>
 
@@ -265,7 +266,132 @@
     </article>
   </div>
 
-  <!-- GÖRSEL LIGHTBOX -->
+
+  <!-- AYARLAR PANELİ -->
+  <div class="settings-panel" hidden role="dialog" aria-modal="true" aria-label="Ayarlar">
+    <div class="settings-inner">
+      <header class="settings-header">
+        <strong>Ayarlar</strong>
+        <button class="icon-btn settings-close-btn" aria-label="Kapat">&#x2715;</button>
+      </header>
+      <div class="settings-body">
+
+        <!-- Gorunum -->
+        <section class="settings-section">
+          <p class="settings-label">Gorunum</p>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Tema</span>
+            <div class="settings-seg" role="group" aria-label="Tema secimi">
+              <button class="seg-btn" data-setting="theme" data-value="dark">Koyu</button>
+              <button class="seg-btn" data-setting="theme" data-value="light">Acik</button>
+              <button class="seg-btn" data-setting="theme" data-value="system">Sistem</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Vurgu Rengi</span>
+            <div class="settings-accent-row">
+              <button class="accent-swatch" data-color="#5b9cf6" style="background:#5b9cf6" title="Mavi"></button>
+              <button class="accent-swatch" data-color="#3ecf8e" style="background:#3ecf8e" title="Yesil"></button>
+              <button class="accent-swatch" data-color="#e8b840" style="background:#e8b840" title="Sari"></button>
+              <button class="accent-swatch" data-color="#e84444" style="background:#e84444" title="Kirmizi"></button>
+              <button class="accent-swatch" data-color="#a78bfa" style="background:#a78bfa" title="Mor"></button>
+              <button class="accent-swatch" data-color="#f97316" style="background:#f97316" title="Turuncu"></button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Kompakt Mod</span>
+            <label class="settings-toggle" aria-label="Kompakt mod">
+              <input type="checkbox" class="toggle-input" data-setting="compactMode" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Gorselleri Goster</span>
+            <label class="settings-toggle" aria-label="Gorselleri goster">
+              <input type="checkbox" class="toggle-input" data-setting="showImages" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Davranis -->
+        <section class="settings-section">
+          <p class="settings-label">Davranis</p>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Acilinca Okundu Isaretl</span>
+            <label class="settings-toggle" aria-label="Okundu isaretl">
+              <input type="checkbox" class="toggle-input" data-setting="markReadOnOpen" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Orijinali Yeni Sekmede Ac</span>
+            <label class="settings-toggle" aria-label="Yeni sekmede ac">
+              <input type="checkbox" class="toggle-input" data-setting="openInNewTab" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Otomatik Yenile</span>
+            <label class="settings-toggle" aria-label="Otomatik yenile">
+              <input type="checkbox" class="toggle-input" data-setting="autoRefresh" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="settings-row settings-row-indent" id="refresh-interval-row">
+            <span class="settings-row-label">Yenileme Araligi</span>
+            <select class="settings-select" data-setting="refreshInterval">
+              <option value="5">5 dakika</option>
+              <option value="10">10 dakika</option>
+              <option value="15">15 dakika</option>
+              <option value="30">30 dakika</option>
+              <option value="60">1 saat</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Veri -->
+        <section class="settings-section">
+          <p class="settings-label">Veri</p>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Feed Onbellegi</span>
+            <button class="settings-action-btn clear-cache-btn">Temizle</button>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Okuma Gecmisi</span>
+            <button class="settings-action-btn clear-history-btn">Temizle</button>
+          </div>
+
+          <div class="settings-row">
+            <span class="settings-row-label">Tum Verileri Sifirla</span>
+            <button class="settings-action-btn settings-danger-btn reset-all-btn">Sifirla</button>
+          </div>
+        </section>
+
+        <!-- Hakkinda -->
+        <section class="settings-section settings-about">
+          <p class="settings-label">Hakkinda</p>
+          <div class="settings-about-content">
+            <p class="settings-about-name">NewRssFeed</p>
+            <p class="settings-about-desc">Takip ettigin her sey, tek bir yerde.</p>
+            <a class="settings-about-link" href="https://github.com/korayozkan/NewRssFeed" target="_blank" rel="noopener noreferrer">GitHub &#x2192;</a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+  <!-- GORSEL LIGHTBOX -->
   <div class="lightbox" hidden aria-label="Görsel büyütme" role="dialog">
     <button class="lightbox-close" aria-label="Kapat">✕</button>
     <img class="lightbox-img" src="" alt="" />
@@ -310,6 +436,7 @@
   <script src="js/render.js"></script>
   <script src="js/modal.js"></script>
   <script src="js/events.js"></script>
+  <script src="js/settings.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

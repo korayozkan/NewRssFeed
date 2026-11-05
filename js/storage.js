@@ -62,6 +62,7 @@ function saveState() {
     localStorage.setItem('rss_readHistory', JSON.stringify(state.readHistory));
     localStorage.setItem('rss_typo',        JSON.stringify(state.typo));
     localStorage.setItem('rss_daysFilter',  String(state.daysFilter));
+    localStorage.setItem('rss_settings',    JSON.stringify(state.settings));
   } catch (_) {
     // Sessizce geç — kullanıcı deneyimi bozulmasın
   }
@@ -98,6 +99,9 @@ function loadState() {
     // Object.assign ile mevcut varsayılanları koru, üzerine yaz
     if (typo)        state.typo        = Object.assign({}, state.typo, JSON.parse(typo));
     if (days)        state.daysFilter  = Number(days);
+
+    const settings = localStorage.getItem('rss_settings');
+    if (settings)    state.settings    = Object.assign({}, state.settings, JSON.parse(settings));
   } catch (_) {
     // Bozuk JSON veya erişim hatası — state varsayılan değerlerde kalır
   }
