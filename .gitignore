@@ -35,7 +35,6 @@ __pycache__/
 *.pyd
 .Python
 *.egg-info/
-dist/
 build/
 .venv/
 venv/
@@ -51,9 +50,14 @@ env/
 .DS_Store
 *.pem
 Thumbs.db
-.vscode/settings.json    # kişisel VS Code ayarları
+.vscode/settings.json
 .idea/
 
-# ── Misc ──────────────────────────────────────────────────────────────────────
-example/
+# ── Temp / Archive ─────────────────────────────────────────────────────────────
+*.tmp
+*.zip
 *.log
+example/
+
+# ── Agent / Workflow artifacts ─────────────────────────────────────────────────
+.agents/
