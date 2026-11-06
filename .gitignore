@@ -1,15 +1,20 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# ── Node / npm ────────────────────────────────────────────────────────────────
 node_modules/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+package-lock.json        # her ortamda ayrı üretilir; CI'da npm ci kullanılır
 
-# Expo
+# ── Expo / Metro ──────────────────────────────────────────────────────────────
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+.metro-health-check*
 
-# Native
+# ── Native (Continuous Native Generation — ios/ ve android/ üretilir) ────────
+/ios/
+/android/
 .kotlin/
 *.orig.*
 *.jks
@@ -18,26 +23,38 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
-# Metro
-.metro-health-check*
+# ── Environment / Secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# .env.example is intentionally NOT ignored — commit it as a template
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
+# ── TypeScript ────────────────────────────────────────────────────────────────
 *.tsbuildinfo
 
-example
+# ── Editor / OS ───────────────────────────────────────────────────────────────
+.DS_Store
+*.pem
+Thumbs.db
+.vscode/settings.json    # kişisel VS Code ayarları
+.idea/
 
-# generated native folders
-/ios
-/android
+# ── Misc ──────────────────────────────────────────────────────────────────────
+example/
+*.log

@@ -1,0 +1,13 @@
+# NewRssFeed Recommendation Engine — Python dependencies
+# Install: pip install -r requirements.txt
+
+# No heavy ML deps required for Stage 1-3 baseline
+# (pure-Python implementation with optional numpy for LTR)
+
+# Optional — uncomment for embedding-based recommendations (Stage 3 advanced):
+# sentence-transformers>=2.2.2
+# scikit-learn>=1.3.0
+# numpy>=1.24.0
+
+# Dev / testing
+# pytest>=7.4.0
