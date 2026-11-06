@@ -5,52 +5,68 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Required by actions/deploy-pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false   # do NOT cancel an in-progress deploy
 
 jobs:
+  # ── Build ──────────────────────────────────────────────────────────────────
   build:
     name: Build Expo Web
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Node 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
           cache: npm
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build Expo Web
-        run: npx expo export --platform web
+        # Pass secrets via env — never interpolate directly into run:
         env:
           EXPO_PUBLIC_CF_WORKER_URL: ${{ secrets.EXPO_PUBLIC_CF_WORKER_URL }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npx expo export --platform web
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: dist
 
+  # ── Deploy ─────────────────────────────────────────────────────────────────
   deploy:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
