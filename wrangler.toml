@@ -1,0 +1,13 @@
+name = "newrssfeed-proxy"
+main = "worker/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Worker çalışma zamanı — Workers Free plan'da geçerli
+# workers_dev = true  → <name>.<account>.workers.dev URL'si otomatik atanır
+
+[observability]
+enabled = true
+
+# Yerel geliştirme için: `wrangler dev`
+# Deploy için:          `wrangler deploy`
