@@ -3,7 +3,6 @@ node_modules/
 npm-debug.*
 yarn-debug.*
 yarn-error.*
-package-lock.json        # her ortamda ayrı üretilir; CI'da npm ci kullanılır
 
 # ── Expo / Metro ──────────────────────────────────────────────────────────────
 .expo/
